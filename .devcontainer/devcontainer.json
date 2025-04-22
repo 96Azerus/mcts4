@@ -1,0 +1,99 @@
+// .devcontainer/devcontainer.json
+{
+	"name": "OFC Pineapple MCTS",
+	// Используем базовый образ Python 3.11 от Microsoft
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
+
+	// --- ДОБАВЛЕНА СЕКЦИЯ features ---
+	"features": {
+		// Включаем Docker-in-Docker для возможности сборки и запуска Docker внутри Codespace
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	// --- КОНЕЦ СЕКЦИИ features ---
+
+	// Устанавливаем рабочую директорию внутри контейнера
+	"workspaceFolder": "/app",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
+
+	// Запускаем команды после создания контейнера
+	"postCreateCommand": "pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt",
+
+	// Переменные окружения для контейнера
+	"containerEnv": {
+		"PYTHONPATH": "/app",
+		"FLASK_APP": "app.py",
+		"FLASK_ENV": "development", // Для разработки в Codespace
+		"FLASK_DEBUG": "1",         // Включаем режим отладки Flask
+		"LOG_LEVEL": "DEBUG",       // Более подробное логирование для отладки
+		"PORT": "10000",            // Порт для Gunicorn/Flask
+		"MCTS_NUM_WORKERS": "4",    // Количество воркеров для MCTS
+		"MCTS_ROLLOUTS_PER_LEAF": "2", // Роллаутов на лист MCTS
+		"WEB_CONCURRENCY": "4"      // Количество воркеров Gunicorn
+		// "GUNICORN_CMD_ARGS": "--worker-class gevent" // Опционально для асинхронных воркеров
+	},
+
+	// Перенаправляем порт 10000
+	"forwardPorts": [10000],
+	"portsAttributes": {
+		"10000": {
+			"label": "Flask App",
+			"onAutoForward": "openPreview" // Открывать превью при авто-перенаправлении
+		}
+	},
+
+	// Устанавливаем расширения VS Code
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",             // Python основной
+				"ms-python.vscode-pylance",     // IntelliSense
+				"ms-python.flake8",             // Flake8 линтер
+				"ms-python.mypy-type-checker",  // MyPy проверка типов
+				"charliermarsh.ruff",           // Ruff быстрый линтер/форматтер
+				"njpwerner.autodocstring",      // Генератор докстрингов
+				"donjayamanne.githistory"       // История Git
+			],
+			"settings": {
+				// Настройки Python
+				"python.testing.pytestArgs": [
+					"tests", "-v" // Добавляем -v для подробного вывода pytest
+				],
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				// Форматирование и линтинг
+				"editor.formatOnSave": true,
+				"python.formatting.provider": "none", // Используем Ruff для форматирования
+				"python.linting.flake8Enabled": true, // Можно оставить или отключить в пользу Ruff
+				"python.linting.pylintEnabled": false,
+				"python.linting.enabled": true,
+				// Настройки Ruff
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff",
+					"editor.codeActionsOnSave": {
+						"source.fixAll": "explicit",
+						"source.organizeImports": "explicit"
+					}
+				},
+				"ruff.lint.args": [],
+				// Настройки MyPy
+				"mypy-type-checker.args": ["--strict"],
+				// Прочие настройки
+				"files.exclude": {
+					"**/.git": true,
+					"**/.svn": true,
+					"**/.hg": true,
+					"**/CVS": true,
+					"**/.DS_Store": true,
+					"**/Thumbs.db": true,
+					"**/__pycache__": true,
+					"**/.pytest_cache": true,
+					"**/.mypy_cache": true,
+					"**/.ruff_cache": true
+				}
+			}
+		}
+	},
+
+	// Запускаем от имени пользователя vscode (создается автоматически)
+	"remoteUser": "vscode"
+}
