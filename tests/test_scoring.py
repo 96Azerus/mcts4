@@ -1,4 +1,4 @@
-# tests/test_scoring.py v1.3
+# tests/test_scoring.py v1.4
 """
 Unit-тесты для модуля src.scoring.
 """
