@@ -1,4 +1,4 @@
-# tests/test_board.py v1.1
+# tests/test_board.py v1.2
 """
 Unit-тесты для модуля src.board.
 """
@@ -9,11 +9,13 @@ import pytest
 from src.board import PlayerBoard
 from src.card import card_from_str, card_to_str, INVALID_CARD, CARD_PLACEHOLDER
 # Импортируем функции скоринга для проверки результатов
-from src.scoring import get_row_royalty, check_board_foul, get_fantasyland_entry_cards, check_fantasyland_stay, RANK_CLASS_HIGH_CARD
+from src.scoring import (
+    get_row_royalty, check_board_foul, get_fantasyland_entry_cards,
+    check_fantasyland_stay, RANK_CLASS_HIGH_CARD, WORST_RANK # Импортируем WORST_RANK
+)
 
 # Хелпер для создания рук
 def hand(card_strs):
-    # --- ИСПРАВЛЕНО: Обработка INVALID_CARD как int ---
     result = []
     for s in card_strs:
         if s == INVALID_CARD:
@@ -40,7 +42,7 @@ def test_board_init():
     for row_name in PlayerBoard.ROW_NAMES:
         assert len(board.rows[row_name]) == PlayerBoard.ROW_CAPACITY[row_name]
         assert all(card is None for card in board.rows[row_name])
-        # --- ИСПРАВЛЕНО: Проверяем на WORST_POSSIBLE_RANK ---
+        # --- ИСПРАВЛЕНО: Проверяем на WORST_RANK ---
         assert board._get_rank(row_name) == PlayerBoard.WORST_POSSIBLE_RANK
     assert board.get_total_royalty() == 0
 
@@ -69,16 +71,13 @@ def test_board_add_card_invalid_slot():
     card_ks = card_from_str('Ks')
     board.add_card(card_as, 'top', 0)
 
-    # Попытка добавить в занятый слот
     assert not board.add_card(card_ks, 'top', 0)
     assert board.get_total_cards() == 1
-    assert board.rows['top'][0] == card_as # Карта не должна измениться
+    assert board.rows['top'][0] == card_as
 
-    # Попытка добавить в неверный индекс
     assert not board.add_card(card_ks, 'top', 3)
     assert board.get_total_cards() == 1
 
-    # Попытка добавить в неверный ряд
     assert not board.add_card(card_ks, 'upper', 0)
     assert board.get_total_cards() == 1
 
@@ -87,9 +86,8 @@ def test_board_add_card_invalid_card():
     board = PlayerBoard()
     assert not board.add_card(INVALID_CARD, 'top', 0)
     assert board.get_total_cards() == 0
-    assert not board.add_card(0, 'top', 0) # 0 тоже невалидна
+    assert not board.add_card(0, 'top', 0)
     assert board.get_total_cards() == 0
-    # assert not board.add_card(None, 'top', 0) # None не должен передаваться
 
 def test_board_remove_card_valid():
     """Тестирует удаление карты из слота."""
@@ -97,14 +95,14 @@ def test_board_remove_card_valid():
     card_as = card_from_str('As')
     board.add_card(card_as, 'middle', 2)
     assert board.get_total_cards() == 1
-    board._get_rank('middle') # Заполняем кэш
+    board._get_rank('middle')
     assert board._cached_ranks['middle'] is not None
 
     removed_card = board.remove_card('middle', 2)
     assert removed_card == card_as
     assert board.get_total_cards() == 0
     assert board.rows['middle'][2] is None
-    assert board._cached_ranks['middle'] is None # Кэш должен сброситься
+    assert board._cached_ranks['middle'] is None
 
 def test_board_remove_card_invalid():
     """Тестирует удаление из пустого или неверного слота."""
@@ -112,15 +110,12 @@ def test_board_remove_card_invalid():
     card_as = card_from_str('As')
     board.add_card(card_as, 'middle', 2)
 
-    # Удаление из пустого слота
     assert board.remove_card('middle', 0) is None
     assert board.get_total_cards() == 1
 
-    # Удаление из неверного индекса
     assert board.remove_card('middle', 5) is None
     assert board.get_total_cards() == 1
 
-    # Удаление из неверного ряда
     assert board.remove_card('center', 2) is None
     assert board.get_total_cards() == 1
 
@@ -129,10 +124,9 @@ def test_board_remove_card_invalid():
 def test_board_set_full_board_valid():
     """Тестирует установку валидной полной доски."""
     board = PlayerBoard()
-    # --- ИСПРАВЛЕНО: Убран дубликат Ks ---
-    top = hand(['Ah', 'Ad', 'Ac'])
-    middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s'])
-    bottom = hand(['As', 'Kh', 'Qs', 'Js', 'Ts']) # Заменили Ks на Kh
+    top = hand(['Ah', 'Ad', 'Ac']) # Trips
+    middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s']) # 2 Pair
+    bottom = hand(['As', 'Kh', 'Qs', 'Js', 'Ts']) # Flush
     board.set_full_board(top, middle, bottom)
 
     assert board.is_complete()
@@ -140,16 +134,15 @@ def test_board_set_full_board_valid():
     assert board.rows['top'] == top
     assert board.rows['middle'] == middle
     assert board.rows['bottom'] == bottom
-    # --- ИСПРАВЛЕНО: Эта доска теперь не фол ---
+    # --- ИСПРАВЛЕНО: Эта доска не фол ---
     assert not board.is_foul # Top(Trips) > Mid(2Pair) > Bot(Flush)
-    assert board._cached_ranks['top'] is None # Кэши сброшены
-    # Проверяем роялти (должны быть не 0)
-    assert board.get_total_royalty() > 0
+    assert board._cached_ranks['top'] is None
+    assert board.get_total_royalty() > 0 # Роялти должны быть
 
 def test_board_set_full_board_invalid_counts():
     """Тестирует установку доски с неверным количеством карт."""
     board = PlayerBoard()
-    top = hand(['Ah', 'Ad']) # Не 3
+    top = hand(['Ah', 'Ad'])
     middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s'])
     bottom = hand(['As', 'Ks', 'Qs', 'Js', 'Ts'])
     with pytest.raises(ValueError):
@@ -168,8 +161,7 @@ def test_board_set_full_board_invalid_cards():
     """Тестирует установку доски с невалидными картами."""
     board = PlayerBoard()
     top = hand(['Ah', 'Ad', 'Ac'])
-    # --- ИСПРАВЛЕНО: Передаем INVALID_CARD как int ---
-    middle = hand(['Ks', 'Kd', 'Qc', 'Qd']) + [INVALID_CARD]
+    middle = hand(['Ks', 'Kd', 'Qc', 'Qd', INVALID_CARD])
     bottom = hand(['As', 'Ks', 'Qs', 'Js', 'Ts'])
     with pytest.raises(ValueError):
         board.set_full_board(top, middle, bottom)
@@ -186,11 +178,10 @@ def test_board_helpers():
     board.add_card(card_from_str('Ks'), 'top', 1)
     board.add_card(card_from_str('Qs'), 'top', 2)
     assert board.is_row_full('top')
-    assert len(board.get_available_slots()) == 10 # 13 - 3
+    assert len(board.get_available_slots()) == 10
     assert board.get_total_cards() == 3
     assert not board.is_complete()
 
-    # Заполняем остальные ряды
     mid = hand(['2c','3c','4c','5c','6c'])
     bot = hand(['7d','8d','9d','Td','Jd'])
     for i, c in enumerate(mid): board.add_card(c, 'middle', i)
@@ -207,27 +198,22 @@ def test_board_helpers():
 def test_board_get_rank_and_royalty():
     """Тестирует получение рангов и роялти (делегирование в scoring)."""
     board = PlayerBoard()
-    # Ставим Фулл-хаус на боттом
-    bottom = hand(['Ac', 'Ad', 'Ah', 'Ks', 'Kd'])
+    bottom = hand(['Ac', 'Ad', 'Ah', 'Ks', 'Kd']) # FH
+    middle = hand(['2h', '5h', '8h', 'Th', 'Qh']) # Flush
+    top = hand(['Qc', 'Qd', '2s']) # Pair QQ
     for i, c in enumerate(bottom): board.add_card(c, 'bottom', i)
-    # Ставим Флеш на миддл
-    middle = hand(['2h', '5h', '8h', 'Th', 'Qh'])
     for i, c in enumerate(middle): board.add_card(c, 'middle', i)
-    # Ставим пару дам на топ
-    top = hand(['Qc', 'Qd', '2s'])
     for i, c in enumerate(top): board.add_card(c, 'top', i)
 
     assert board.is_complete()
     # --- ИСПРАВЛЕНО: Эта доска не фол ---
-    assert not board.check_and_set_foul() # Top(Pair Q) < Mid(Flush) < Bot(FH)
+    assert not board.check_and_set_foul() # Top(QQ) < Mid(Flush) < Bot(FH)
 
-    # Проверяем ранги (точные значения зависят от эвалуаторов)
     rank_t = board._get_rank('top')
     rank_m = board._get_rank('middle')
     rank_b = board._get_rank('bottom')
-    assert rank_b < rank_m < rank_t # Проверка порядка
+    assert rank_b < rank_m < rank_t
 
-    # Проверяем роялти
     expected_royalty_t = 7 # QQ
     expected_royalty_m = 8 # Flush
     expected_royalty_b = 6 # Full House
@@ -237,7 +223,6 @@ def test_board_get_rank_and_royalty():
     assert royalties['bottom'] == expected_royalty_b
     assert board.get_total_royalty() == expected_royalty_t + expected_royalty_m + expected_royalty_b
 
-    # Проверяем кэширование (второй вызов должен вернуть то же самое)
     assert board.get_royalties() == royalties
     assert board._get_rank('top') == rank_t
 
@@ -245,7 +230,7 @@ def test_board_get_rank_and_royalty():
     board_foul = PlayerBoard()
     top_f = hand(['Ah', 'Ad', 'Ac']) # Trips
     mid_f = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s']) # Two Pair
-    bot_f = hand(['As', 'Kh', 'Qs', 'Js', 'Ts']) # Flush (заменили Ks на Kh)
+    bot_f = hand(['As', 'Kh', 'Qs', 'Js', 'Ts']) # Flush
     board_foul.set_full_board(top_f, mid_f, bot_f)
     assert board_foul.is_foul # Mid < Bot
     assert board_foul.get_royalties() == {'top': 0, 'middle': 0, 'bottom': 0}
@@ -265,7 +250,7 @@ def test_board_fantasyland_methods():
 
     # Доска для входа в ФЛ (AAA)
     board_aaa = PlayerBoard()
-    board_aaa.set_full_board(hand(['Ac','Ad','Ah']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts'])) # Заменили Ks на Kh в боттоме
+    board_aaa.set_full_board(hand(['Ac','Ad','Ah']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts']))
     # --- ИСПРАВЛЕНО: Эта доска не фол ---
     assert not board_aaa.is_foul # Top(AAA) > Mid(2Pair) > Bot(Flush)
     assert board_aaa.get_fantasyland_qualification_cards() == 17 # AAA -> 17 карт
@@ -280,7 +265,7 @@ def test_board_fantasyland_methods():
 
     # Фол доска - нет ФЛ
     board_foul = PlayerBoard()
-    board_foul.set_full_board(hand(['Ah','Ad','Ac']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts'])) # Заменили Ks на Kh
+    board_foul.set_full_board(hand(['Ah','Ad','Ac']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts']))
     assert board_foul.is_foul # Mid < Bot
     assert board_foul.get_fantasyland_qualification_cards() == 0
     assert not board_foul.check_fantasyland_stay_conditions()
@@ -288,7 +273,6 @@ def test_board_fantasyland_methods():
 def test_board_foul_reset_on_incomplete():
     """Тестирует, что флаг фола сбрасывается при удалении карты."""
     board = PlayerBoard()
-    # Создаем фол-доску
     top_f = hand(['Ah', 'Ad', 'Ac'])
     mid_f = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s'])
     bot_f = hand(['As', 'Kh', 'Qs', 'Js', 'Ts'])
@@ -296,12 +280,9 @@ def test_board_foul_reset_on_incomplete():
     assert board.is_complete()
     assert board.is_foul
 
-    # Удаляем карту, доска становится неполной
     board.remove_card('top', 0)
     assert not board.is_complete()
-    # Флаг фола должен сброситься
     assert not board.is_foul
-    # Проверка фола для неполной доски должна вернуть False
     assert not board.check_and_set_foul()
 
 # --- Тесты копирования ---
@@ -311,26 +292,24 @@ def test_board_copy():
     board1 = PlayerBoard()
     board1.add_card(card_from_str('As'), 'top', 0)
     board1.add_card(card_from_str('Kd'), 'bottom', 1)
-    board1._get_rank('top') # Заполняем кэш
+    board1._get_rank('top')
 
     board2 = board1.copy()
 
     assert board1 is not board2
     assert board1.rows is not board2.rows
-    assert board1.rows['top'] is not board2.rows['top'] # Списки должны быть разными объектами
-    assert board1.rows == board2.rows # Но содержимое одинаковое
+    assert board1.rows['top'] is not board2.rows['top']
+    assert board1.rows == board2.rows
     assert board1._cards_placed == board2._cards_placed
     assert board1.is_foul == board2.is_foul
-    assert board1._cached_ranks == board2._cached_ranks # Кэши копируются
+    assert board1._cached_ranks == board2._cached_ranks
 
-    # Изменяем копию
     board2.add_card(card_from_str('Qh'), 'middle', 0)
     assert board1.get_total_cards() == 2
     assert board2.get_total_cards() == 3
     assert board1.rows['middle'][0] is None
     assert board2.rows['middle'][0] == card_from_str('Qh')
 
-    # Изменяем оригинал
     board1.remove_card('top', 0)
     assert board1.get_total_cards() == 1
     assert board2.get_total_cards() == 3
@@ -341,7 +320,6 @@ def test_board_copy():
 def test_get_board_state_tuple():
     """Тестирует создание каноничного кортежа состояния доски."""
     board = PlayerBoard()
-    # Неполная доска
     board.add_card(card_from_str('As'), 'top', 0)
     board.add_card(card_from_str('2c'), 'top', 2)
     board.add_card(card_from_str('Kd'), 'middle', 1)
@@ -349,22 +327,19 @@ def test_get_board_state_tuple():
     board.add_card(card_from_str('Ts'), 'bottom', 4)
 
     state_tuple = board.get_board_state_tuple()
-    # Проверяем структуру
     assert isinstance(state_tuple, tuple)
     assert len(state_tuple) == 3
     assert all(isinstance(row_tuple, tuple) for row_tuple in state_tuple)
-    # --- ИСПРАВЛЕНО: Проверяем содержимое и сортировку (As > 2c, плейсхолдеры в конце) ---
+    # --- ИСПРАВЛЕНО: Проверяем содержимое и сортировку ---
     assert state_tuple[0] == ('As', '2c', CARD_PLACEHOLDER)
-    # --- ИСПРАВЛЕНО: Проверяем содержимое и сортировку (Kd > Qh, плейсхолдеры в конце) ---
     assert state_tuple[1] == ('Kd', 'Qh', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
-    # --- ИСПРАВЛЕНО: Проверяем содержимое и сортировку (плейсхолдеры в конце) ---
     assert state_tuple[2] == ('Ts', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
 
     # Полная доска
     board_full = PlayerBoard()
     board_full.set_full_board(hand(['Qc','Qd','2s']), hand(['3h','4h','5h','6h','7h']), hand(['Ac','Ad','Ah','Ks','Kd']))
     state_tuple_full = board_full.get_board_state_tuple()
-    # Проверяем сортировку
-    assert state_tuple_full[0] == ('Qd', 'Qc', '2s') # Сортировка по масти при равном ранге
+    # --- ИСПРАВЛЕНО: Проверяем сортировку по масти (s > h > d > c) ---
+    assert state_tuple_full[0] == ('Qd', 'Qc', '2s') # d > c
     assert state_tuple_full[1] == ('7h', '6h', '5h', '4h', '3h')
-    assert state_tuple_full[2] == ('As', 'Ah', 'Ad', 'Ks', 'Kd')
+    assert state_tuple_full[2] == ('As', 'Ah', 'Ad', 'Ks', 'Kd') # s > h > d
