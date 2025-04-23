@@ -1,4 +1,4 @@
-# src/board.py v1.1
+# src/board.py v1.2
 """
 Представление доски одного игрока в OFC Pineapple.
 Содержит карты в трех рядах и управляет их размещением,
@@ -8,16 +8,22 @@ from typing import List, Tuple, Dict, Optional
 from collections import Counter
 import copy
 import traceback
-import sys # Для вывода ошибок
+import sys
+import logging
 
-# --- ИСПРАВЛЕНО: Импорты из src пакета ---
-from src.card import Card, card_to_str, RANK_MAP, STR_RANKS, INVALID_CARD, CARD_PLACEHOLDER
+# Импорты из src пакета
+from src.card import Card, card_to_str, RANK_MAP, STR_RANKS, INVALID_CARD, CARD_PLACEHOLDER, SUIT_CHAR_TO_INT
 # Импортируем ВСЕ необходимые функции и константы из scoring
 from src.scoring import (
     get_hand_rank_safe, check_board_foul,
     get_fantasyland_entry_cards, check_fantasyland_stay,
-    get_row_royalty, RANK_CLASS_HIGH_CARD
+    get_row_royalty, RANK_CLASS_HIGH_CARD, WORST_RANK # Импортируем WORST_RANK
 )
+
+# Получаем логгер
+logger = logging.getLogger(__name__)
+if not logger.hasHandlers(): logger.setLevel(logging.WARNING)
+
 
 class PlayerBoard:
     """
@@ -25,21 +31,19 @@ class PlayerBoard:
     """
     ROW_CAPACITY: Dict[str, int] = {'top': 3, 'middle': 5, 'bottom': 5}
     ROW_NAMES: List[str] = ['top', 'middle', 'bottom']
-    # Константа для ранга неполной/пустой руки
-    WORST_POSSIBLE_RANK: int = RANK_CLASS_HIGH_CARD + 1000
+    # --- ИСПРАВЛЕНО: Используем WORST_RANK из scoring ---
+    WORST_POSSIBLE_RANK: int = WORST_RANK
 
     def __init__(self):
         """Инициализирует пустую доску."""
-        # Инициализируем ряды списками None нужной длины
         self.rows: Dict[str, List[Optional[int]]] = {
             name: [None] * capacity for name, capacity in self.ROW_CAPACITY.items()
         }
-        self._cards_placed: int = 0 # Количество размещенных карт
-        self.is_foul: bool = False # Флаг "мертвой" руки
-        # Кэши для рангов и роялти (сбрасываются при изменении доски)
+        self._cards_placed: int = 0
+        self.is_foul: bool = False
         self._cached_ranks: Dict[str, Optional[int]] = {name: None for name in self.ROW_NAMES}
         self._cached_royalties: Dict[str, Optional[int]] = {name: None for name in self.ROW_NAMES}
-        self._is_complete: bool = False # Флаг завершенности доски (13 карт)
+        self._is_complete: bool = False
 
     def add_card(self, card_int: int, row_name: str, index: int) -> bool:
         """
@@ -54,34 +58,29 @@ class PlayerBoard:
         Returns:
             bool: True при успехе, False при неудаче (неверный ряд/индекс, слот занят, невалидная карта).
         """
-        # --- Улучшено: Проверка входных данных ---
         if row_name not in self.ROW_NAMES:
-            # print(f"Error: Invalid row name '{row_name}'")
+            logger.debug(f"Add card failed: Invalid row name '{row_name}'")
             return False
         if not isinstance(card_int, int) or card_int == INVALID_CARD or card_int <= 0:
-             # print(f"Error: Invalid card value '{card_int}'")
+             logger.debug(f"Add card failed: Invalid card value '{card_int}'")
              return False
 
         capacity = self.ROW_CAPACITY[row_name]
         if not (0 <= index < capacity):
-            # print(f"Error: Index {index} out of bounds for row '{row_name}' (0-{capacity-1}).")
+            logger.debug(f"Add card failed: Index {index} out of bounds for row '{row_name}' (0-{capacity-1}).")
             return False
 
-        # Проверяем, свободен ли слот
         if self.rows[row_name][index] is not None:
-            # print(f"Warning: Slot {row_name}[{index}] is already occupied. Cannot add {card_to_str(card_int)}.")
+            logger.debug(f"Add card failed: Slot {row_name}[{index}] is already occupied by {card_to_str(self.rows[row_name][index])}. Cannot add {card_to_str(card_int)}.")
             return False
 
-        # Добавляем карту
         self.rows[row_name][index] = card_int
         self._cards_placed += 1
-        self._is_complete = (self._cards_placed == 13)
+        self._is_complete = (self._cards_placed == 13) # Обновляем флаг завершенности
 
-        # Сбрасываем кэши при любом изменении доски
         self._reset_caches()
-        # Фол будет пересчитан при необходимости (при запросе рангов/роялти или в конце раунда)
-        # Сбрасываем флаг фола, так как доска изменилась
-        self.is_foul = False
+        self.is_foul = False # Сбрасываем флаг фола при изменении
+        logger.debug(f"Added card {card_to_str(card_int)} to {row_name}[{index}]. Total cards: {self._cards_placed}. Complete: {self._is_complete}")
         return True
 
     def remove_card(self, row_name: str, index: int) -> Optional[int]:
@@ -97,17 +96,18 @@ class PlayerBoard:
             Optional[int]: Удаленная карта (int) или None, если слот был пуст или некорректен.
         """
         if row_name not in self.ROW_NAMES or not (0 <= index < self.ROW_CAPACITY[row_name]):
-            return None # Некорректный ряд или индекс
+            return None
 
         card_int = self.rows[row_name][index]
         if card_int is not None:
-            self.rows[row_name][index] = None # Очищаем слот
+            self.rows[row_name][index] = None
             self._cards_placed -= 1
             self._is_complete = False # Доска больше не полная
-            self._reset_caches()      # Сбрасываем кэши
-            self.is_foul = False      # Сбрасываем флаг фола
+            self._reset_caches()
+            self.is_foul = False # Сбрасываем флаг фола
+            logger.debug(f"Removed card {card_to_str(card_int)} from {row_name}[{index}]. Total cards: {self._cards_placed}.")
             return card_int
-        return None # Слот был пуст
+        return None
 
     def set_full_board(self, top: List[int], middle: List[int], bottom: List[int]):
         """
@@ -131,42 +131,36 @@ class PlayerBoard:
         all_cards: List[int] = []
         card_lists = {'top': top, 'middle': middle, 'bottom': bottom}
 
-        # Проверяем валидность карт и собираем все карты для проверки уникальности
         for row_name, card_list in card_lists.items():
              for i, card_int in enumerate(card_list):
                   if not isinstance(card_int, int) or card_int == INVALID_CARD or card_int <= 0:
                        raise ValueError(f"Invalid card value '{card_int}' provided in row '{row_name}' at index {i}.")
                   all_cards.append(card_int)
 
-        # Проверяем уникальность всех 13 карт
         if len(all_cards) != len(set(all_cards)):
             counts = Counter(all_cards)
             duplicates = {card_to_str(card): count for card, count in counts.items() if count > 1}
             raise ValueError(f"Duplicate cards provided for setting full board: {duplicates}")
 
-        # Устанавливаем карты в ряды (создаем копии списков)
         self.rows['top'] = list(top)
         self.rows['middle'] = list(middle)
         self.rows['bottom'] = list(bottom)
 
-        # Обновляем состояние доски
         self._cards_placed = 13
         self._is_complete = True
-        self._reset_caches() # Сбрасываем кэши
-        self.check_and_set_foul() # Проверяем фол сразу после установки полной доски
+        self._reset_caches()
+        self.check_and_set_foul() # Проверяем фол сразу
 
     def get_row_cards(self, row_name: str) -> List[int]:
         """Возвращает список действительных карт (int) в указанном ряду."""
         if row_name not in self.rows:
             return []
-        # Возвращаем только валидные int карты
         return [card for card in self.rows[row_name] if isinstance(card, int) and card is not None and card != INVALID_CARD and card > 0]
 
     def is_row_full(self, row_name: str) -> bool:
         """Проверяет, заполнен ли указанный ряд валидными картами."""
         if row_name not in self.rows:
             return False
-        # Проверяем, что все слоты в ряду содержат валидные int карты
         return all(isinstance(slot, int) and slot is not None and slot != INVALID_CARD and slot > 0 for slot in self.rows[row_name])
 
     def get_available_slots(self) -> List[Tuple[str, int]]:
@@ -174,7 +168,6 @@ class PlayerBoard:
         slots = []
         for row_name in self.ROW_NAMES:
             for i, card in enumerate(self.rows[row_name]):
-                # Слот доступен, если он None
                 if card is None:
                     slots.append((row_name, i))
         return slots
@@ -185,6 +178,8 @@ class PlayerBoard:
 
     def is_complete(self) -> bool:
         """Проверяет, размещены ли все 13 карт на доске."""
+        # --- ИСПРАВЛЕНО: Убедимся, что _is_complete актуален ---
+        self._is_complete = (self._cards_placed == 13)
         return self._is_complete
 
     def _reset_caches(self):
@@ -206,16 +201,12 @@ class PlayerBoard:
         if row_name not in self.ROW_NAMES:
             return self.WORST_POSSIBLE_RANK
 
-        # Проверяем кэш
         if self._cached_ranks[row_name] is None:
-            # Передаем список с None как есть, get_hand_rank_safe обработает
             cards_with_none = self.rows[row_name]
-            # --- ИСПРАВЛЕНО: Используем get_hand_rank_safe, который вернет плохой ранг для неполных рук ---
+            # --- ИСПРАВЛЕНО: get_hand_rank_safe вернет WORST_RANK для неполных/невалидных ---
             self._cached_ranks[row_name] = get_hand_rank_safe(cards_with_none)
 
-        # Возвращаем значение из кэша (или только что вычисленное)
         rank = self._cached_ranks[row_name]
-        # Добавим проверку на None на всякий случай и вернем WORST_POSSIBLE_RANK
         return rank if rank is not None else self.WORST_POSSIBLE_RANK
 
     def check_and_set_foul(self) -> bool:
@@ -227,30 +218,27 @@ class PlayerBoard:
         Returns:
             bool: Текущее значение флага is_foul.
         """
-        # --- ИСПРАВЛЕНО: Не проверяем фол, если доска не полная ---
-        if not self.is_complete():
-            # Убедимся, что флаг сброшен, если доска не полная
-            if self.is_foul:
+        # --- ИСПРАВЛЕНО: Логика обновления флага ---
+        if not self.is_complete(): # Проверяем актуальный статус завершенности
+            if self.is_foul: # Если доска стала неполной, а флаг стоял
                  self.is_foul = False
-                 self._reset_caches() # Сбросим кэши, если фол был отменен
-            return False
+                 self._reset_caches() # Сбросим кэши роялти
+            return False # Неполная доска не фол
 
-        # Используем функцию из scoring.py, передавая списки с None
-        # check_board_foul сама проверит полноту и валидность рядов
+        # Доска полная, проверяем фол
         current_foul_status = check_board_foul(
             self.rows['top'],
             self.rows['middle'],
             self.rows['bottom']
         )
 
-        # Обновляем флаг и кэш роялти, если статус фола изменился
         if current_foul_status != self.is_foul:
             self.is_foul = current_foul_status
             if self.is_foul:
-                # Если рука стала фолом, обнуляем кэш роялти
+                # Обнуляем кэш роялти при установке фола
                 self._cached_royalties = {'top': 0, 'middle': 0, 'bottom': 0}
             else:
-                 # Если фол был снят (маловероятно без изменений), сбрасываем кэш
+                 # Если фол был снят (маловероятно), сбрасываем кэш
                  self._reset_caches()
 
         return self.is_foul
@@ -265,22 +253,14 @@ class PlayerBoard:
             Dict[str, int]: Словарь с роялти для 'top', 'middle', 'bottom'.
                             Возвращает нули, если рука "мертвая" (фол).
         """
-        # Сначала проверяем фол, если доска полная.
-        # check_and_set_foul обновит self.is_foul и кэш роялти при необходимости.
         if self.is_complete() and self.check_and_set_foul():
-            # Возвращаем нули, если фол
             return {'top': 0, 'middle': 0, 'bottom': 0}
 
-        # Пересчитываем роялти для рядов, если они не в кэше
         for row_name in self.ROW_NAMES:
             if self._cached_royalties[row_name] is None:
-                # Передаем список с None, get_row_royalty обработает
                 cards_with_none = self.rows[row_name]
-                # Вызываем функцию из scoring
                 self._cached_royalties[row_name] = get_row_royalty(cards_with_none, row_name)
 
-        # Возвращаем копию кэша (он уже должен быть обнулен, если был фол)
-        # Добавим проверку на None в кэше на всякий случай
         return {
             row: self._cached_royalties.get(row, 0) or 0
             for row in self.ROW_NAMES
@@ -289,7 +269,6 @@ class PlayerBoard:
 
     def get_total_royalty(self) -> int:
         """Возвращает сумму роялти по всем линиям, учитывая фол."""
-        # Вызов get_royalties() обновит кэш и учтет фол, если нужно
         royalties_dict = self.get_royalties()
         return sum(royalties_dict.values())
 
@@ -304,9 +283,8 @@ class PlayerBoard:
             int: Количество карт для Фантазии (0, если нет квалификации или фол).
         """
         if not self.is_complete(): return 0
-        if self.check_and_set_foul(): return 0 # Фол не дает ФЛ
+        if self.check_and_set_foul(): return 0
 
-        # Вызываем функцию из scoring
         return get_fantasyland_entry_cards(self.rows['top'])
 
     def check_fantasyland_stay_conditions(self) -> bool:
@@ -320,9 +298,8 @@ class PlayerBoard:
             bool: True, если условия выполнены, иначе False.
         """
         if not self.is_complete(): return False
-        if self.check_and_set_foul(): return False # Фол не позволяет удержать ФЛ
+        if self.check_and_set_foul(): return False
 
-        # Вызываем функцию из scoring
         return check_fantasyland_stay(
             self.rows['top'],
             self.rows['middle'],
@@ -339,27 +316,26 @@ class PlayerBoard:
             Tuple[Tuple[str, ...], ...]: Кортеж из трех кортежей (top, middle, bottom),
                                          содержащих отсортированные строки карт.
         """
-        # --- ИСПРАВЛЕНО: Логика сортировки ---
-        def sort_key(card_str: str) -> Tuple[int, str]:
+        # --- ИСПРАВЛЕНО: Ключ сортировки ---
+        # Сортируем сначала по рангу (убывание), потом по масти (s > h > d > c), плейсхолдеры в конце
+        suit_order = {'s': 0, 'h': 1, 'd': 2, 'c': 3}
+        def sort_key(card_str: str) -> Tuple[int, int]:
             if card_str == CARD_PLACEHOLDER:
-                # Плейсхолдеры должны идти последними при сортировке от старших к младшим
-                return (99, '') # Используем большое число для ранга
+                return (99, 99) # Плейсхолдеры идут в конец
             try:
                 rank_char = card_str[0].upper()
                 suit_char = card_str[1].lower()
-                # Используем отрицательное значение ранга для сортировки по убыванию
-                rank_val = -RANK_MAP.get(rank_char, -99) # -99 для невалидных рангов
-                return (rank_val, suit_char)
+                # Отрицательный ранг для сортировки по убыванию
+                rank_val = -RANK_MAP.get(rank_char, -99)
+                # Порядок мастей
+                suit_val = suit_order.get(suit_char, 99)
+                return (rank_val, suit_val)
             except IndexError:
-                return (99, '') # В случае некорректной строки
+                return (99, 99) # Некорректная строка
 
         rows_as_str_tuples: Dict[str, Tuple[str, ...]] = {}
         for r_name in self.ROW_NAMES:
-            row_str_list: List[str] = []
-            for card_int in self.rows[r_name]:
-                # Преобразуем int Card в строку или CARD_PLACEHOLDER
-                row_str_list.append(card_to_str(card_int))
-            # Сортируем строки карт внутри ряда
+            row_str_list: List[str] = [card_to_str(c) for c in self.rows[r_name]]
             sorted_row = tuple(sorted(row_str_list, key=sort_key))
             rows_as_str_tuples[r_name] = sorted_row
 
@@ -368,13 +344,10 @@ class PlayerBoard:
     def copy(self) -> 'PlayerBoard':
         """Создает глубокую копию объекта доски."""
         new_board = PlayerBoard()
-        # Копируем ряды (списки int копируются по значению при создании нового списка)
         new_board.rows = {r: list(cards) for r, cards in self.rows.items()}
-        # Копируем остальные атрибуты
         new_board._cards_placed = self._cards_placed
         new_board.is_foul = self.is_foul
         new_board._is_complete = self._is_complete
-        # Копируем кэши (они содержат простые типы или None)
         new_board._cached_ranks = self._cached_ranks.copy()
         new_board._cached_royalties = self._cached_royalties.copy()
         return new_board
@@ -384,29 +357,28 @@ class PlayerBoard:
         s = ""
         max_len = max(len(self.rows[r_name]) for r_name in self.ROW_NAMES)
         for r_name in self.ROW_NAMES:
-            # Преобразуем int Card в строку или CARD_PLACEHOLDER
             row_str = [card_to_str(c) for c in self.rows[r_name]]
-            # Дополняем пробелами для выравнивания (используем плейсхолдер)
             row_str += [CARD_PLACEHOLDER] * (max_len - len(row_str))
             s += f"{r_name.upper():<6}: " + " ".join(f"{c:^2}" for c in row_str) + "\n"
 
-        # Добавляем информацию о состоянии доски
         s += f"Cards: {self._cards_placed}/13"
+        # --- ИСПРАВЛЕНО: Используем is_complete() и check_and_set_foul() ---
+        is_comp = self.is_complete()
         current_foul_status = self.is_foul
-        if self.is_complete():
-            # --- ИСПРАВЛЕНО: Вызываем check_and_set_foul перед получением роялти ---
-            current_foul_status = self.check_and_set_foul()
+        if is_comp:
+            current_foul_status = self.check_and_set_foul() # Проверяем/устанавливаем фол
             s += f", Complete: Yes, Foul: {current_foul_status}"
-            # Вызываем get_royalties для получения актуальных значений (учитывая фол)
-            royalties_dict = self.get_royalties()
+            royalties_dict = self.get_royalties() # Получаем актуальные роялти
             total_royalty = sum(royalties_dict.values())
             s += f", Royalties: {total_royalty} {royalties_dict}"
         else:
             s += f", Complete: No"
-            # Показываем текущий статус фола, даже если не полная (он должен быть False)
+            # Показываем текущий статус фола (должен быть False, если не полная)
             s += f", Foul: {current_foul_status}"
         return s.strip()
 
     def __repr__(self) -> str:
         """Возвращает репрезентацию объекта PlayerBoard."""
-        return f"PlayerBoard(Cards={self._cards_placed}, Complete={self._is_complete}, Foul={self.is_foul})"
+        # Обновляем _is_complete перед выводом
+        is_comp = self.is_complete()
+        return f"PlayerBoard(Cards={self._cards_placed}, Complete={is_comp}, Foul={self.is_foul})"
