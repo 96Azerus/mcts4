@@ -1,4 +1,4 @@
-# tests/test_board.py v1.4
+# tests/test_board.py v1.5
 """
 Unit-тесты для модуля src.board.
 """
@@ -11,7 +11,7 @@ from src.card import card_from_str, card_to_str, INVALID_CARD, CARD_PLACEHOLDER
 # Импортируем функции скоринга для проверки результатов
 from src.scoring import (
     get_row_royalty, check_board_foul, get_fantasyland_entry_cards,
-    check_fantasyland_stay, RANK_CLASS_HIGH_CARD, WORST_RANK # Импортируем WORST_RANK
+    check_fantasyland_stay, RANK_CLASS_HIGH_CARD, WORST_RANK
 )
 
 # Хелпер для создания рук
@@ -57,11 +57,34 @@ def test_board_add_card_valid():
     assert board.rows['top'][1] is None
     assert board._cached_ranks['top'] is None
     assert board._cached_royalties['top'] is None
+    assert not board.is_complete() # Проверяем, что флаг не установился
 
     card_kd = card_from_str('Kd')
     assert board.add_card(card_kd, 'bottom', 4)
     assert board.get_total_cards() == 2
     assert board.rows['bottom'][4] == card_kd
+    assert not board.is_complete()
+
+    # Добавляем до 13 карт
+    for i in range(11):
+         # Используем разные карты, чтобы избежать дубликатов
+         rank = PlayerBoard.ROW_NAMES[i % 3]
+         suit = ['s', 'h', 'd', 'c'][i % 4]
+         card_str = f"{rank}{suit}"
+         # Находим первый доступный слот
+         slots = board.get_available_slots()
+         assert slots # Убедимся, что слоты есть
+         row, idx = slots[0]
+         try:
+             card_int = card_from_str(card_str)
+             assert board.add_card(card_int, row, idx)
+         except ValueError: # Пропускаем, если карта уже есть
+             pass
+
+    # Проверяем после добавления 13-й карты
+    assert board.get_total_cards() == 13
+    assert board.is_complete()
+
 
 def test_board_add_card_invalid_slot():
     """Тестирует добавление карты в занятый или неверный слот."""
