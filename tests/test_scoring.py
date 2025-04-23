@@ -1,4 +1,4 @@
-# tests/test_scoring.py v1.5
+# tests/test_scoring.py v1.6
 """
 Unit-тесты для модуля src.scoring.
 """
@@ -155,7 +155,8 @@ def test_check_board_foul_invalid():
     # Bottom > Middle
     top = hand(['Ah', 'Ad', 'Ac']) # Trips
     middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s']) # Two Pair
-    bottom = hand(['As', 'Ks', 'Qs', 'Js', 'Ts']) # Royal Flush
+    # --- ИСПРАВЛЕНО: Убран дубликат As, Ks ---
+    bottom = hand(['Th', 'Jh', 'Qh', 'Kh', 'Ah']) # Royal Flush
     # --- ИСПРАВЛЕНО: Ожидаем True (фол) ---
     assert check_board_foul(top, middle, bottom)
 
