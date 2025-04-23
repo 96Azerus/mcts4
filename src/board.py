@@ -1,4 +1,4 @@
-# src/board.py v1.3
+# src/board.py v1.4
 """
 Представление доски одного игрока в OFC Pineapple.
 Содержит карты в трех рядах и управляет их размещением,
@@ -323,6 +323,7 @@ class PlayerBoard:
                 suit_val = suit_order.get(suit_char, 99)
                 return (rank_val, suit_val)
             except IndexError:
+                logger.warning(f"Invalid card string '{card_str}' encountered in sort_key.")
                 return (99, 99) # Некорректная строка
 
         rows_as_str_tuples: Dict[str, Tuple[str, ...]] = {}
