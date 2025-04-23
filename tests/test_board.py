@@ -1,4 +1,4 @@
-# tests/test_board.py v1.2
+# tests/test_board.py v1.3
 """
 Unit-тесты для модуля src.board.
 """
@@ -38,7 +38,7 @@ def test_board_init():
     assert board.get_total_cards() == 0
     assert not board.is_complete()
     assert not board.is_foul
-    assert len(board.get_available_slots()) == 13 # 3 + 5 + 5
+    assert len(board.get_available_slots()) == 13
     for row_name in PlayerBoard.ROW_NAMES:
         assert len(board.rows[row_name]) == PlayerBoard.ROW_CAPACITY[row_name]
         assert all(card is None for card in board.rows[row_name])
@@ -56,7 +56,7 @@ def test_board_add_card_valid():
     assert board.get_total_cards() == 1
     assert board.rows['top'][0] == card_as
     assert board.rows['top'][1] is None
-    assert board._cached_ranks['top'] is None # Кэш должен сброситься
+    assert board._cached_ranks['top'] is None
     assert board._cached_royalties['top'] is None
 
     card_kd = card_from_str('Kd')
@@ -134,10 +134,10 @@ def test_board_set_full_board_valid():
     assert board.rows['top'] == top
     assert board.rows['middle'] == middle
     assert board.rows['bottom'] == bottom
-    # --- ИСПРАВЛЕНО: Эта доска не фол ---
+    # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
     assert not board.is_foul # Top(Trips) > Mid(2Pair) > Bot(Flush)
     assert board._cached_ranks['top'] is None
-    assert board.get_total_royalty() > 0 # Роялти должны быть
+    assert board.get_total_royalty() > 0
 
 def test_board_set_full_board_invalid_counts():
     """Тестирует установку доски с неверным количеством карт."""
@@ -206,7 +206,7 @@ def test_board_get_rank_and_royalty():
     for i, c in enumerate(top): board.add_card(c, 'top', i)
 
     assert board.is_complete()
-    # --- ИСПРАВЛЕНО: Эта доска не фол ---
+    # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
     assert not board.check_and_set_foul() # Top(QQ) < Mid(Flush) < Bot(FH)
 
     rank_t = board._get_rank('top')
@@ -243,7 +243,7 @@ def test_board_fantasyland_methods():
     # Доска для входа в ФЛ (QQ)
     board_qq = PlayerBoard()
     board_qq.set_full_board(hand(['Qc','Qd','2s']), hand(['3h','4h','5h','6h','7h']), hand(['Ac','Ad','Ah','Ks','Kd']))
-    # --- ИСПРАВЛЕНО: Эта доска не фол ---
+    # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
     assert not board_qq.is_foul # Top(QQ) < Mid(Straight) < Bot(FH)
     assert board_qq.get_fantasyland_qualification_cards() == 14 # QQ -> 14 карт
     assert not board_qq.check_fantasyland_stay_conditions() # Нет условий для Re-FL
@@ -251,7 +251,7 @@ def test_board_fantasyland_methods():
     # Доска для входа в ФЛ (AAA)
     board_aaa = PlayerBoard()
     board_aaa.set_full_board(hand(['Ac','Ad','Ah']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts']))
-    # --- ИСПРАВЛЕНО: Эта доска не фол ---
+    # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
     assert not board_aaa.is_foul # Top(AAA) > Mid(2Pair) > Bot(Flush)
     assert board_aaa.get_fantasyland_qualification_cards() == 17 # AAA -> 17 карт
     assert board_aaa.check_fantasyland_stay_conditions() # Trips on top -> Stay
@@ -330,7 +330,6 @@ def test_get_board_state_tuple():
     assert isinstance(state_tuple, tuple)
     assert len(state_tuple) == 3
     assert all(isinstance(row_tuple, tuple) for row_tuple in state_tuple)
-    # --- ИСПРАВЛЕНО: Проверяем содержимое и сортировку ---
     assert state_tuple[0] == ('As', '2c', CARD_PLACEHOLDER)
     assert state_tuple[1] == ('Kd', 'Qh', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
     assert state_tuple[2] == ('Ts', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
