@@ -1,4 +1,4 @@
-# tests/test_scoring.py v1.2
+# tests/test_scoring.py v1.3
 """
 Unit-тесты для модуля src.scoring.
 """
@@ -68,7 +68,6 @@ def test_get_hand_rank_safe_incomplete(cards_str, expected_rank):
 
 def test_get_hand_rank_safe_invalid_input():
     """Тестирует get_hand_rank_safe с невалидным вводом (неверная длина)."""
-    # --- ИСПРАВЛЕНО: Ожидаем WORST_RANK ---
     assert get_hand_rank_safe(hand(['As', 'Ks'])) == WORST_RANK
     assert get_hand_rank_safe(hand(['As', 'Ks', 'Qs', 'Js'])) == WORST_RANK
     assert get_hand_rank_safe([]) == WORST_RANK
@@ -78,7 +77,6 @@ def test_get_hand_rank_safe_invalid_input():
 
 def test_get_hand_rank_safe_duplicates():
     """Тестирует get_hand_rank_safe с дубликатами."""
-    # --- ИСПРАВЛЕНО: Ожидаем WORST_RANK ---
     assert get_hand_rank_safe(hand(['As', 'As', 'Ks'])) == WORST_RANK
     assert get_hand_rank_safe(hand(['As', 'Ks', 'Qs', 'Js', 'As'])) == WORST_RANK
 
@@ -195,7 +193,7 @@ def test_get_fantasyland_entry_cards(top_hand_str, expected_cards):
 # --- Тесты check_fantasyland_stay ---
 @pytest.mark.parametrize("top_str, middle_str, bottom_str, expected_stay", [
     # Stay: Trips on Top
-    (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], ['As', 'Kh', 'Qs', 'Js', 'Ts'], True), # Убрали дубликат Ks
+    (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], ['As', 'Kh', 'Qs', 'Js', 'Ts'], True),
     # Stay: Quads on Bottom
     (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['7h', '7d', '7c', '7s', 'Ad'], True),
     # Stay: Straight Flush on Bottom
