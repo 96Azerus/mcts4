@@ -1,4 +1,4 @@
-# src/scoring.py v1.7
+# src/scoring.py v1.8
 """
 Логика подсчета очков, роялти, проверки фолов и условий Фантазии
 для OFC Pineapple согласно предоставленным правилам.
@@ -141,14 +141,14 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
         if num_cards != 3: return 0
         if len(valid_cards) != len(set(valid_cards)): return 0
         try:
-            # --- ПЕРЕПИСАНО: Логика роялти для топа v1.7 ---
+            # Используем исправленный ofc_3card_lookup (v1.2)
             rank_3card, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
             if type_str == 'Trips':
-                rank_char = rank_str[0] # 'AAA' -> 'A'
+                rank_char = rank_str[0]
                 rank_index = RANK_MAP.get(rank_char)
                 royalty = ROYALTY_TOP_TRIPS.get(rank_index, 0)
             elif type_str == 'Pair':
-                pair_rank_char = rank_str[0] # '66A' -> '6'
+                pair_rank_char = rank_str[0]
                 rank_index = RANK_MAP.get(pair_rank_char)
                 royalty = ROYALTY_TOP_PAIRS.get(rank_index, 0)
             return royalty
@@ -160,6 +160,7 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
         if num_cards != 5: return 0
         if len(valid_cards) != len(set(valid_cards)): return 0
         try:
+            # Используем исправленный ofc_5card_lookup (v1.3)
             rank_eval = get_hand_rank_safe(valid_cards)
             if rank_eval >= WORST_RANK: return 0
 
@@ -198,7 +199,7 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
     Returns:
         bool: True, если доска "мертвая", иначе False.
     """
-    # --- ПЕРЕПИСАНО: v1.7 ---
+    # --- ПЕРЕПИСАНО: v1.8 ---
     try:
         # 1. Проверка полноты и валидности карт в каждом ряду
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -225,8 +226,8 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
              return False
 
         # 5. Проверяем условие фола: rank_b <= rank_m <= rank_t (меньше = лучше)
-        is_foul = not (rank_b <= rank_m <= rank_t)
-        # Добавим логирование для отладки падающих тестов
+        #    Используем строгое неравенство для фола: top > middle или middle > bottom
+        is_foul = (rank_t < rank_m) or (rank_m < rank_b)
         if is_foul:
              logger.debug(f"Foul detected: T={rank_t}, M={rank_m}, B={rank_b}")
         # else:
@@ -246,7 +247,7 @@ def get_fantasyland_entry_cards(top: List[Optional[int]]) -> int:
     Returns:
         int: Количество карт для раздачи в Фантазии (14, 15, 16, 17) или 0, если условие не выполнено.
     """
-    # --- ПЕРЕПИСАНО: v1.7 ---
+    # --- ПЕРЕПИСАНО: v1.8 ---
     valid_cards = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
     if len(valid_cards) != 3: return 0
     if len(valid_cards) != len(set(valid_cards)): return 0
@@ -283,7 +284,7 @@ def check_fantasyland_stay(top: List[Optional[int]], middle: List[Optional[int]]
     Returns:
         bool: True, если условия удержания Фантазии выполнены, иначе False.
     """
-    # --- ПЕРЕПИСАНО: v1.7 ---
+    # --- ПЕРЕПИСАНО: v1.8 ---
     try:
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
         valid_middle = [c for c in middle if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -335,7 +336,7 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
              Положительное значение - игрок 1 выиграл очки у игрока 2.
              Отрицательное значение - игрок 2 выиграл очки у игрока 1.
     """
-    # --- ПЕРЕПИСАНО: v1.7 ---
+    # --- ПЕРЕПИСАНО: v1.8 ---
     if not board1.is_complete() or not board2.is_complete():
          logger.warning("calculate_headsup_score called with incomplete boards.")
          return 0
