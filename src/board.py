@@ -1,4 +1,4 @@
-# src/board.py v1.4
+# src/board.py v1.5
 """
 Представление доски одного игрока в OFC Pineapple.
 Содержит карты в трех рядах и управляет их размещением,
@@ -17,7 +17,7 @@ from src.card import Card, card_to_str, RANK_MAP, STR_RANKS, INVALID_CARD, CARD_
 from src.scoring import (
     get_hand_rank_safe, check_board_foul,
     get_fantasyland_entry_cards, check_fantasyland_stay,
-    get_row_royalty, RANK_CLASS_HIGH_CARD, WORST_RANK # Импортируем WORST_RANK
+    get_row_royalty, RANK_CLASS_HIGH_CARD, WORST_RANK
 )
 
 # Получаем логгер
@@ -75,7 +75,8 @@ class PlayerBoard:
 
         self.rows[row_name][index] = card_int
         self._cards_placed += 1
-        self._is_complete = (self._cards_placed == 13) # Обновляем флаг завершенности
+        # --- ИСПРАВЛЕНО: Обновляем _is_complete СРАЗУ ---
+        self._is_complete = (self._cards_placed == 13)
 
         self._reset_caches()
         self.is_foul = False # Сбрасываем флаг фола при изменении
@@ -177,6 +178,7 @@ class PlayerBoard:
 
     def is_complete(self) -> bool:
         """Проверяет, размещены ли все 13 карт на доске."""
+        # Обновляем на всякий случай перед возвратом
         self._is_complete = (self._cards_placed == 13)
         return self._is_complete
 
@@ -309,7 +311,7 @@ class PlayerBoard:
             Tuple[Tuple[str, ...], ...]: Кортеж из трех кортежей (top, middle, bottom),
                                          содержащих отсортированные строки карт.
         """
-        # --- ИСПРАВЛЕНО: Ключ сортировки (s > h > d > c) ---
+        # --- ИСПРАВЛЕНО: Ключ сортировки (s > h > d > c) v1.5 ---
         suit_order = {'s': 0, 'h': 1, 'd': 2, 'c': 3} # Меньше = старше
         def sort_key(card_str: str) -> Tuple[int, int]:
             if card_str == CARD_PLACEHOLDER:
