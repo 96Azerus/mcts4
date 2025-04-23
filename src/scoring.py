@@ -1,4 +1,4 @@
-# src/scoring.py v1.5
+# src/scoring.py v1.6
 """
 Логика подсчета очков, роялти, проверки фолов и условий Фантазии
 для OFC Pineapple согласно предоставленным правилам.
@@ -18,7 +18,7 @@ from src.card import (
 try:
     from src.evaluator.ofc_3card_evaluator import evaluate_3_card_ofc
     from src.evaluator.ofc_5card_evaluator import Evaluator as Evaluator5Card
-    # Используем v1.2 с исправленной сортировкой SF
+    # Используем v1.3 с исправленной сортировкой SF
     from src.evaluator.ofc_5card_lookup import LookupTable as LookupTable5Card
 except ImportError as e:
      print(f"CRITICAL ERROR: Failed to import custom evaluators in scoring.py: {e}", file=sys.stderr)
@@ -100,6 +100,7 @@ def get_hand_rank_safe(cards: List[Optional[int]]) -> int:
              logger.warning(f"Duplicate cards found in 3-card hand for ranking: {[card_to_str(c) for c in valid_cards]}")
              return WORST_RANK
         try:
+            # Используем исправленный ofc_3card_lookup (v1.2)
             rank, _, _ = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
             return rank
         except Exception as e:
@@ -111,7 +112,7 @@ def get_hand_rank_safe(cards: List[Optional[int]]) -> int:
              logger.warning(f"Duplicate cards found in 5-card hand for ranking: {[card_to_str(c) for c in valid_cards]}")
              return WORST_RANK
         try:
-            # Используем исправленный эвалуатор
+            # Используем исправленный ofc_5card_lookup (v1.3)
             rank = evaluator_5card.evaluate(valid_cards)
             return rank
         except Exception as e:
@@ -143,16 +144,16 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
         if num_cards != 3: return 0
         if len(valid_cards) != len(set(valid_cards)): return 0
         try:
-            # --- ПЕРЕПИСАНО: Логика роялти для топа v1.5 ---
+            # --- ПЕРЕПИСАНО: Логика роялти для топа v1.6 ---
+            # Используем исправленный ofc_3card_lookup (v1.2)
             rank_3card, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
             if type_str == 'Trips':
-                rank_char = rank_str[0]
+                rank_char = rank_str[0] # 'AAA' -> 'A'
                 rank_index = RANK_MAP.get(rank_char)
                 royalty = ROYALTY_TOP_TRIPS.get(rank_index, 0)
             elif type_str == 'Pair':
-                pair_rank_char = rank_str[0]
+                pair_rank_char = rank_str[0] # '66A' -> '6'
                 rank_index = RANK_MAP.get(pair_rank_char)
-                # Используем get с default=0 для пар 55 и ниже
                 royalty = ROYALTY_TOP_PAIRS.get(rank_index, 0)
             return royalty
         except Exception as e:
@@ -163,6 +164,7 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
         if num_cards != 5: return 0
         if len(valid_cards) != len(set(valid_cards)): return 0
         try:
+            # Используем исправленный ofc_5card_lookup (v1.3)
             rank_eval = get_hand_rank_safe(valid_cards)
             if rank_eval >= WORST_RANK: return 0
 
@@ -201,7 +203,7 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
     Returns:
         bool: True, если доска "мертвая", иначе False.
     """
-    # --- ПЕРЕПИСАНО: v1.5 ---
+    # --- ПЕРЕПИСАНО: v1.6 ---
     try:
         # 1. Проверка полноты и валидности карт в каждом ряду
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -217,7 +219,7 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
              logger.warning(f"Duplicate cards detected across rows in check_board_foul. Hand is invalid, returning False (not foul).")
              return False
 
-        # 3. Получаем ранги (get_hand_rank_safe уже проверит дубликаты внутри ряда)
+        # 3. Получаем ранги (используя исправленные эвалуаторы)
         rank_t = get_hand_rank_safe(valid_top)
         rank_m = get_hand_rank_safe(valid_middle)
         rank_b = get_hand_rank_safe(valid_bottom)
@@ -244,24 +246,23 @@ def get_fantasyland_entry_cards(top: List[Optional[int]]) -> int:
     Returns:
         int: Количество карт для раздачи в Фантазии (14, 15, 16, 17) или 0, если условие не выполнено.
     """
-    # --- ПЕРЕПИСАНО: v1.5 ---
+    # --- ПЕРЕПИСАНО: v1.6 ---
     valid_cards = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
     if len(valid_cards) != 3: return 0
     if len(valid_cards) != len(set(valid_cards)): return 0
 
     try:
+        # Используем исправленный ofc_3card_lookup (v1.2)
         _, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
 
         if type_str == 'Trips':
-            # Любой трипс на топе дает 17 карт
             return 17
         elif type_str == 'Pair':
-            pair_rank_char = rank_str[0] # Ранг пары
+            pair_rank_char = rank_str[0] # 'QQJ' -> 'Q'
             if pair_rank_char == 'A': return 16
             if pair_rank_char == 'K': return 15
             if pair_rank_char == 'Q': return 14
-            # Пары ниже QQ не дают ФЛ
-            return 0
+            return 0 # Пары JJ и ниже
         else: # High Card
             return 0
     except Exception as e:
@@ -282,7 +283,7 @@ def check_fantasyland_stay(top: List[Optional[int]], middle: List[Optional[int]]
     Returns:
         bool: True, если условия удержания Фантазии выполнены, иначе False.
     """
-    # --- ПЕРЕПИСАНО: v1.5 ---
+    # --- ПЕРЕПИСАНО: v1.6 ---
     try:
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
         valid_middle = [c for c in middle if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -292,14 +293,17 @@ def check_fantasyland_stay(top: List[Optional[int]], middle: List[Optional[int]]
         if len(valid_top) != 3 or len(valid_middle) != 5 or len(valid_bottom) != 5: return False
         all_cards = valid_top + valid_middle + valid_bottom
         if len(all_cards) != len(set(all_cards)): return False
+        # Используем исправленный check_board_foul
         if check_board_foul(valid_top, valid_middle, valid_bottom): return False
 
         # Проверяем условие для верхнего ряда (Трипс)
+        # Используем исправленный ofc_3card_lookup (v1.2)
         _, type_str_top, _ = evaluate_3_card_ofc(valid_top[0], valid_top[1], valid_top[2])
         if type_str_top == 'Trips':
             return True
 
         # Проверяем условие для нижнего ряда (Каре или лучше)
+        # Используем исправленный ofc_5card_lookup (v1.3)
         rank_b = get_hand_rank_safe(valid_bottom)
         # Каре или Стрит-флеш (ранги <= RANK_CLASS_QUADS)
         if rank_b < WORST_RANK and rank_b <= RANK_CLASS_QUADS:
@@ -331,7 +335,7 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
              Положительное значение - игрок 1 выиграл очки у игрока 2.
              Отрицательное значение - игрок 2 выиграл очки у игрока 1.
     """
-    # --- ПЕРЕПИСАНО: v1.5 ---
+    # --- ПЕРЕПИСАНО: v1.6 ---
     if not board1.is_complete() or not board2.is_complete():
          logger.warning("calculate_headsup_score called with incomplete boards.")
          return 0
@@ -344,16 +348,16 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
 
     # Обработка сценариев с фолами
     if foul1 and foul2:
-        return 0 # Оба фол -> 0 очков за линии и 0 роялти
+        return 0
     if foul1:
-        # Игрок 1 фол, Игрок 2 не фол. P1 платит P2 6 очков + роялти P2.
+        # P1 фол, P2 не фол. P1 платит P2 6 очков + роялти P2.
         return -(6 + r2)
     if foul2:
-        # Игрок 2 фол, Игрок 1 не фол. P2 платит P1 6 очков + роялти P1.
+        # P2 фол, P1 не фол. P2 платит P1 6 очков + роялти P1.
         return 6 + r1
 
     # Если фолов нет, сравниваем линии
-    line_score_p1 = 0 # Очки P1 за линии
+    line_wins_p1 = 0
 
     try:
         rank_t1 = board1._get_rank('top'); rank_t2 = board2._get_rank('top')
@@ -364,27 +368,27 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
              logger.error("Invalid rank detected during score calculation. Returning 0.")
              return 0
 
-        # Считаем очки за каждую линию
-        if rank_t1 < rank_t2: line_score_p1 += 1
-        elif rank_t2 < rank_t1: line_score_p1 -= 1
+        if rank_t1 < rank_t2: line_wins_p1 += 1
+        elif rank_t2 < rank_t1: line_wins_p1 -= 1
 
-        if rank_m1 < rank_m2: line_score_p1 += 1
-        elif rank_m2 < rank_m1: line_score_p1 -= 1
+        if rank_m1 < rank_m2: line_wins_p1 += 1
+        elif rank_m2 < rank_m1: line_wins_p1 -= 1
 
-        if rank_b1 < rank_b2: line_score_p1 += 1
-        elif rank_b2 < rank_b1: line_score_p1 -= 1
+        if rank_b1 < rank_b2: line_wins_p1 += 1
+        elif rank_b2 < rank_b1: line_wins_p1 -= 1
 
     except Exception as e_rank:
          logger.error(f"Error getting ranks during score calculation: {e_rank}", exc_info=True)
          return 0
 
-    # Добавляем бонус за скуп
-    if line_score_p1 == 3: # P1 scoop
-        line_score_p1 += 3
-    elif line_score_p1 == -3: # P2 scoop
-        line_score_p1 -= 3
+    # Рассчитываем очки за линии и скуп
+    line_score_diff = line_wins_p1
+    if line_wins_p1 == 3: # P1 scoop
+        line_score_diff += 3
+    elif line_wins_p1 == -3: # P2 scoop
+        line_score_diff -= 3
 
     # Итоговый счет = очки за линии/скуп + разница роялти
-    total_score_diff = line_score_p1 + (r1 - r2)
+    total_score_diff = line_score_diff + (r1 - r2)
 
     return total_score_diff
