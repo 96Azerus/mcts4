@@ -1,4 +1,4 @@
-# tests/test_scoring.py v1.6
+# tests/test_scoring.py v1.7
 """
 Unit-тесты для модуля src.scoring.
 """
@@ -20,9 +20,9 @@ from src.scoring import (
     ROYALTY_TOP_PAIRS, ROYALTY_TOP_TRIPS,
     ROYALTY_MIDDLE_POINTS, ROYALTY_BOTTOM_POINTS,
     ROYALTY_MIDDLE_POINTS_RF, ROYALTY_BOTTOM_POINTS_RF,
-    WORST_RANK # Импортируем WORST_RANK
+    WORST_RANK
 )
-from src.board import PlayerBoard # Импорт для хелпера create_board
+from src.board import PlayerBoard
 
 # Хелпер для создания рук
 def hand(card_strs):
@@ -67,7 +67,6 @@ def test_get_hand_rank_safe_incomplete(cards_str, expected_rank):
     assert rank == expected_rank
 
 def test_get_hand_rank_safe_invalid_input():
-    """Тестирует get_hand_rank_safe с невалидным вводом (неверная длина)."""
     assert get_hand_rank_safe(hand(['As', 'Ks'])) == WORST_RANK
     assert get_hand_rank_safe(hand(['As', 'Ks', 'Qs', 'Js'])) == WORST_RANK
     assert get_hand_rank_safe([]) == WORST_RANK
@@ -76,7 +75,6 @@ def test_get_hand_rank_safe_invalid_input():
     assert get_hand_rank_safe("not a list") == WORST_RANK # type: ignore
 
 def test_get_hand_rank_safe_duplicates():
-    """Тестирует get_hand_rank_safe с дубликатами."""
     assert get_hand_rank_safe(hand(['As', 'As', 'Ks'])) == WORST_RANK
     assert get_hand_rank_safe(hand(['As', 'Ks', 'Qs', 'Js', 'As'])) == WORST_RANK
 
