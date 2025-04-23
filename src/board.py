@@ -1,4 +1,4 @@
-# src/board.py v1.2
+# src/board.py v1.3
 """
 Представление доски одного игрока в OFC Pineapple.
 Содержит карты в трех рядах и управляет их размещением,
@@ -31,7 +31,6 @@ class PlayerBoard:
     """
     ROW_CAPACITY: Dict[str, int] = {'top': 3, 'middle': 5, 'bottom': 5}
     ROW_NAMES: List[str] = ['top', 'middle', 'bottom']
-    # --- ИСПРАВЛЕНО: Используем WORST_RANK из scoring ---
     WORST_POSSIBLE_RANK: int = WORST_RANK
 
     def __init__(self):
@@ -178,7 +177,6 @@ class PlayerBoard:
 
     def is_complete(self) -> bool:
         """Проверяет, размещены ли все 13 карт на доске."""
-        # --- ИСПРАВЛЕНО: Убедимся, что _is_complete актуален ---
         self._is_complete = (self._cards_placed == 13)
         return self._is_complete
 
@@ -203,7 +201,6 @@ class PlayerBoard:
 
         if self._cached_ranks[row_name] is None:
             cards_with_none = self.rows[row_name]
-            # --- ИСПРАВЛЕНО: get_hand_rank_safe вернет WORST_RANK для неполных/невалидных ---
             self._cached_ranks[row_name] = get_hand_rank_safe(cards_with_none)
 
         rank = self._cached_ranks[row_name]
@@ -218,14 +215,12 @@ class PlayerBoard:
         Returns:
             bool: Текущее значение флага is_foul.
         """
-        # --- ИСПРАВЛЕНО: Логика обновления флага ---
-        if not self.is_complete(): # Проверяем актуальный статус завершенности
-            if self.is_foul: # Если доска стала неполной, а флаг стоял
+        if not self.is_complete():
+            if self.is_foul:
                  self.is_foul = False
-                 self._reset_caches() # Сбросим кэши роялти
-            return False # Неполная доска не фол
+                 self._reset_caches()
+            return False
 
-        # Доска полная, проверяем фол
         current_foul_status = check_board_foul(
             self.rows['top'],
             self.rows['middle'],
@@ -235,10 +230,8 @@ class PlayerBoard:
         if current_foul_status != self.is_foul:
             self.is_foul = current_foul_status
             if self.is_foul:
-                # Обнуляем кэш роялти при установке фола
                 self._cached_royalties = {'top': 0, 'middle': 0, 'bottom': 0}
             else:
-                 # Если фол был снят (маловероятно), сбрасываем кэш
                  self._reset_caches()
 
         return self.is_foul
@@ -316,9 +309,8 @@ class PlayerBoard:
             Tuple[Tuple[str, ...], ...]: Кортеж из трех кортежей (top, middle, bottom),
                                          содержащих отсортированные строки карт.
         """
-        # --- ИСПРАВЛЕНО: Ключ сортировки ---
-        # Сортируем сначала по рангу (убывание), потом по масти (s > h > d > c), плейсхолдеры в конце
-        suit_order = {'s': 0, 'h': 1, 'd': 2, 'c': 3}
+        # --- ИСПРАВЛЕНО: Ключ сортировки (s > h > d > c) ---
+        suit_order = {'s': 0, 'h': 1, 'd': 2, 'c': 3} # Меньше = старше
         def sort_key(card_str: str) -> Tuple[int, int]:
             if card_str == CARD_PLACEHOLDER:
                 return (99, 99) # Плейсхолдеры идут в конец
@@ -362,23 +354,20 @@ class PlayerBoard:
             s += f"{r_name.upper():<6}: " + " ".join(f"{c:^2}" for c in row_str) + "\n"
 
         s += f"Cards: {self._cards_placed}/13"
-        # --- ИСПРАВЛЕНО: Используем is_complete() и check_and_set_foul() ---
         is_comp = self.is_complete()
         current_foul_status = self.is_foul
         if is_comp:
-            current_foul_status = self.check_and_set_foul() # Проверяем/устанавливаем фол
+            current_foul_status = self.check_and_set_foul()
             s += f", Complete: Yes, Foul: {current_foul_status}"
-            royalties_dict = self.get_royalties() # Получаем актуальные роялти
+            royalties_dict = self.get_royalties()
             total_royalty = sum(royalties_dict.values())
             s += f", Royalties: {total_royalty} {royalties_dict}"
         else:
             s += f", Complete: No"
-            # Показываем текущий статус фола (должен быть False, если не полная)
             s += f", Foul: {current_foul_status}"
         return s.strip()
 
     def __repr__(self) -> str:
         """Возвращает репрезентацию объекта PlayerBoard."""
-        # Обновляем _is_complete перед выводом
         is_comp = self.is_complete()
         return f"PlayerBoard(Cards={self._cards_placed}, Complete={is_comp}, Foul={self.is_foul})"
