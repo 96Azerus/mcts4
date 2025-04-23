@@ -1,4 +1,4 @@
-# src/scoring.py v1.3
+# src/scoring.py v1.4
 """
 Логика подсчета очков, роялти, проверки фолов и условий Фантазии
 для OFC Pineapple согласно предоставленным правилам.
@@ -139,22 +139,19 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
 
     if row_name == "top":
         if num_cards != 3: return 0
-        if len(valid_cards) != len(set(valid_cards)): return 0 # Дубликаты
+        if len(valid_cards) != len(set(valid_cards)): return 0
         try:
-            rank_3card, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
             # --- ПЕРЕПИСАНО: Логика роялти для топа ---
+            rank_3card, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
             if type_str == 'Trips':
-                # Ранг трипса определяется первой картой в rank_str (e.g., 'AAA', 'KKK')
                 rank_char = rank_str[0]
                 rank_index = RANK_MAP.get(rank_char)
                 royalty = ROYALTY_TOP_TRIPS.get(rank_index, 0)
             elif type_str == 'Pair':
-                # Ранг пары определяется первой картой в rank_str (e.g., 'AAK', 'QQ2')
                 pair_rank_char = rank_str[0]
                 rank_index = RANK_MAP.get(pair_rank_char)
                 # Роялти только для пар 66 и выше
-                if rank_index is not None and rank_index >= RANK_MAP['6']:
-                    royalty = ROYALTY_TOP_PAIRS.get(rank_index, 0)
+                royalty = ROYALTY_TOP_PAIRS.get(rank_index, 0) # get вернет 0, если ключа нет (пары 22-55)
             return royalty
         except Exception as e:
             logger.error(f"Error calculating top row royalty for {[card_to_str(c) for c in valid_cards]}: {e}", exc_info=True)
@@ -162,7 +159,7 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
 
     elif row_name in ["middle", "bottom"]:
         if num_cards != 5: return 0
-        if len(valid_cards) != len(set(valid_cards)): return 0 # Дубликаты
+        if len(valid_cards) != len(set(valid_cards)): return 0
         try:
             rank_eval = get_hand_rank_safe(valid_cards)
             if rank_eval >= WORST_RANK: return 0
@@ -178,7 +175,6 @@ def get_row_royalty(cards: List[Optional[int]], row_name: str) -> int:
             else:
                 royalty = table.get(hand_name, 0)
 
-            # Трипс на боттоме не дает роялти
             if row_name == "bottom" and hand_name == "Three of a Kind":
                  royalty = 0
 
@@ -203,7 +199,7 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
     Returns:
         bool: True, если доска "мертвая", иначе False.
     """
-    # --- ПЕРЕПИСАНО: Более строгая проверка ---
+    # --- ПЕРЕПИСАНО: Более строгая проверка и логика ---
     try:
         # 1. Проверка полноты и валидности карт в каждом ряду
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -229,9 +225,9 @@ def check_board_foul(top: List[Optional[int]], middle: List[Optional[int]], bott
              logger.warning(f"Invalid rank detected during foul check (T:{rank_t}, M:{rank_m}, B:{rank_b}). Returning False.")
              return False
 
-        # 5. Проверяем условие фола: Нижний <= Средний <= Верхний (по силе)
-        # Меньший ранг означает более сильную руку
+        # 5. Проверяем условие фола: rank_b <= rank_m <= rank_t (меньше = лучше)
         is_foul = not (rank_b <= rank_m <= rank_t)
+        # logger.debug(f"Foul Check: T={rank_t}, M={rank_m}, B={rank_b} -> Foul={is_foul}")
         return is_foul
     except Exception as e:
         logger.error(f"Error during check_board_foul: {e}", exc_info=True)
@@ -247,23 +243,26 @@ def get_fantasyland_entry_cards(top: List[Optional[int]]) -> int:
     Returns:
         int: Количество карт для раздачи в Фантазии (14, 15, 16, 17) или 0, если условие не выполнено.
     """
-    # --- ПЕРЕПИСАНО: Исправлена логика ---
+    # --- ПЕРЕПИСАНО: Исправлена логика if/elif ---
     valid_cards = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
     if len(valid_cards) != 3: return 0
-    if len(valid_cards) != len(set(valid_cards)): return 0 # Дубликаты
+    if len(valid_cards) != len(set(valid_cards)): return 0
 
     try:
         _, type_str, rank_str = evaluate_3_card_ofc(valid_cards[0], valid_cards[1], valid_cards[2])
 
         if type_str == 'Trips':
-            return 17 # Любой трипс -> 17 карт
+            return 17
         elif type_str == 'Pair':
             pair_rank_char = rank_str[0]
-            if pair_rank_char == 'A': return 16
-            if pair_rank_char == 'K': return 15
-            if pair_rank_char == 'Q': return 14
-            # Пары ниже QQ не дают ФЛ
-            return 0
+            if pair_rank_char == 'A':
+                return 16
+            elif pair_rank_char == 'K':
+                return 15
+            elif pair_rank_char == 'Q':
+                return 14
+            else: # Пары JJ и ниже
+                return 0
         else: # High Card
             return 0
     except Exception as e:
@@ -284,7 +283,7 @@ def check_fantasyland_stay(top: List[Optional[int]], middle: List[Optional[int]]
     Returns:
         bool: True, если условия удержания Фантазии выполнены, иначе False.
     """
-    # --- ПЕРЕПИСАНО: Исправлена логика ---
+    # --- ПЕРЕПИСАНО: Исправлена логика проверки ---
     try:
         valid_top = [c for c in top if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
         valid_middle = [c for c in middle if isinstance(c, int) and c is not None and c != INVALID_CARD and c > 0]
@@ -303,7 +302,8 @@ def check_fantasyland_stay(top: List[Optional[int]], middle: List[Optional[int]]
 
         # Проверяем условие для нижнего ряда (Каре или лучше)
         rank_b = get_hand_rank_safe(valid_bottom)
-        if rank_b < WORST_RANK and rank_b <= RANK_CLASS_QUADS: # Каре или Стрит-флеш
+        # Каре или Стрит-флеш (ранги <= RANK_CLASS_QUADS)
+        if rank_b < WORST_RANK and rank_b <= RANK_CLASS_QUADS:
             return True
 
     except Exception as e:
@@ -337,8 +337,8 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
          logger.warning("calculate_headsup_score called with incomplete boards.")
          return 0
 
-    # Проверяем фолы и получаем роялти (get_total_royalty обновит флаг is_foul)
-    # Важно вызвать get_total_royalty ПЕРЕД проверкой флага is_foul
+    # Проверяем фолы и получаем роялти
+    # Важно: get_total_royalty вызовет check_and_set_foul внутри
     r1 = board1.get_total_royalty()
     r2 = board2.get_total_royalty()
     foul1 = board1.is_foul
@@ -362,7 +362,6 @@ def calculate_headsup_score(board1: 'PlayerBoard', board2: 'PlayerBoard') -> int
         rank_m1 = board1._get_rank('middle'); rank_m2 = board2._get_rank('middle')
         rank_b1 = board1._get_rank('bottom'); rank_b2 = board2._get_rank('bottom')
 
-        # Проверяем валидность рангов
         if any(r >= WORST_RANK for r in [rank_t1, rank_m1, rank_b1, rank_t2, rank_m2, rank_b2]):
              logger.error("Invalid rank detected during score calculation. Returning 0.")
              return 0
