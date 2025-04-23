@@ -1,0 +1,900 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.4, pytest-7.3.1, pluggy-1.0.0 -- /usr/local/py-utils/venvs/pytest/bin/python
+cachedir: .pytest_cache
+rootdir: /app
+collecting ... collected 165 items
+
+tests/test_board.py::test_board_init PASSED                              [  0%]
+tests/test_board.py::test_board_add_card_valid PASSED                    [  1%]
+tests/test_board.py::test_board_add_card_invalid_slot PASSED             [  1%]
+tests/test_board.py::test_board_add_card_invalid_card PASSED             [  2%]
+tests/test_board.py::test_board_remove_card_valid PASSED                 [  3%]
+tests/test_board.py::test_board_remove_card_invalid PASSED               [  3%]
+tests/test_board.py::test_board_set_full_board_valid FAILED              [  4%]
+tests/test_board.py::test_board_set_full_board_invalid_counts PASSED     [  4%]
+tests/test_board.py::test_board_set_full_board_duplicates PASSED         [  5%]
+tests/test_board.py::test_board_set_full_board_invalid_cards PASSED      [  6%]
+tests/test_board.py::test_board_helpers PASSED                           [  6%]
+tests/test_board.py::test_board_get_rank_and_royalty FAILED              [  7%]
+tests/test_board.py::test_board_fantasyland_methods FAILED               [  7%]
+tests/test_board.py::test_board_foul_reset_on_incomplete PASSED          [  8%]
+tests/test_board.py::test_board_copy PASSED                              [  9%]
+tests/test_board.py::test_get_board_state_tuple FAILED                   [  9%]
+tests/test_card.py::test_card_from_str_valid PASSED                      [ 10%]
+tests/test_card.py::test_card_from_str_invalid_length PASSED             [ 10%]
+tests/test_card.py::test_card_from_str_invalid_rank PASSED               [ 11%]
+tests/test_card.py::test_card_from_str_invalid_suit PASSED               [ 12%]
+tests/test_card.py::test_card_to_str_valid PASSED                        [ 12%]
+tests/test_card.py::test_card_to_str_invalid PASSED                      [ 13%]
+tests/test_card.py::test_card_getters PASSED                             [ 13%]
+tests/test_card.py::test_prime_product_from_hand PASSED                  [ 14%]
+tests/test_card.py::test_prime_product_from_rankbits PASSED              [ 15%]
+tests/test_card.py::test_hand_to_int PASSED                              [ 15%]
+tests/test_card.py::test_hand_to_int_with_none PASSED                    [ 16%]
+tests/test_card.py::test_hand_to_str PASSED                              [ 16%]
+tests/test_card.py::test_to_pretty_str PASSED                            [ 17%]
+tests/test_deck.py::test_deck_init_full PASSED                           [ 18%]
+tests/test_deck.py::test_deck_init_with_cards PASSED                     [ 18%]
+tests/test_deck.py::test_deck_init_empty PASSED                          [ 19%]
+tests/test_deck.py::test_deck_init_with_invalid PASSED                   [ 20%]
+tests/test_deck.py::test_deck_deal_single PASSED                         [ 20%]
+tests/test_deck.py::test_deck_deal_multiple PASSED                       [ 21%]
+tests/test_deck.py::test_deck_deal_all PASSED                            [ 21%]
+tests/test_deck.py::test_deck_deal_more_than_available PASSED            [ 22%]
+tests/test_deck.py::test_deck_deal_zero_or_negative PASSED               [ 23%]
+tests/test_deck.py::test_deck_remove_existing PASSED                     [ 23%]
+tests/test_deck.py::test_deck_remove_non_existing PASSED                 [ 24%]
+tests/test_deck.py::test_deck_remove_invalid_in_list PASSED              [ 24%]
+tests/test_deck.py::test_deck_remove_empty_list PASSED                   [ 25%]
+tests/test_deck.py::test_deck_add_cards PASSED                           [ 26%]
+tests/test_deck.py::test_deck_add_duplicate PASSED                       [ 26%]
+tests/test_deck.py::test_deck_add_invalid PASSED                         [ 27%]
+tests/test_deck.py::test_deck_copy PASSED                                [ 27%]
+tests/test_deck.py::test_deck_len PASSED                                 [ 28%]
+tests/test_deck.py::test_deck_contains PASSED                            [ 29%]
+tests/test_deck.py::test_deck_contains_invalid PASSED                    [ 29%]
+tests/test_deck.py::test_full_deck_completeness PASSED                   [ 30%]
+tests/test_game_state.py::test_gamestate_init_default PASSED             [ 30%]
+tests/test_game_state.py::test_gamestate_start_new_round_normal PASSED   [ 31%]
+tests/test_game_state.py::test_gamestate_start_new_round_fantasyland PASSED [ 32%]
+tests/test_game_state.py::test_gamestate_start_new_round_fl_carryover PASSED [ 32%]
+tests/test_game_state.py::test_gamestate_apply_action_street1 PASSED     [ 33%]
+tests/test_game_state.py::test_gamestate_apply_action_pineapple PASSED   [ 33%]
+tests/test_game_state.py::test_gamestate_apply_action_completes_board FAILED [ 34%]
+tests/test_game_state.py::test_gamestate_apply_fantasyland_placement PASSED [ 35%]
+tests/test_game_state.py::test_gamestate_apply_fantasyland_foul PASSED   [ 35%]
+tests/test_game_state.py::test_gamestate_get_player_to_move PASSED       [ 36%]
+tests/test_game_state.py::test_gamestate_advance_state_normal_round PASSED [ 36%]
+tests/test_game_state.py::test_gamestate_advance_state_street_change PASSED [ 37%]
+tests/test_game_state.py::test_gamestate_advance_state_fantasyland FAILED [ 38%]
+tests/test_game_state.py::test_gamestate_advance_state_fl_non_fl_player_moves FAILED [ 38%]
+tests/test_game_state.py::test_gamestate_end_of_round_and_score FAILED   [ 39%]
+tests/test_game_state.py::test_gamestate_fantasyland_entry_and_stay FAILED [ 40%]
+tests/test_game_state.py::test_gamestate_serialization PASSED            [ 40%]
+tests/test_game_state.py::test_gamestate_serialization_consistency PASSED [ 41%]
+tests/test_game_state.py::test_gamestate_copy PASSED                     [ 41%]
+tests/test_game_state.py::test_gamestate_get_legal_actions_various_states PASSED [ 42%]
+tests/test_lookup_generator.py::test_lexographical_generator PASSED      [ 43%]
+tests/test_lookup_generator.py::test_lookup_table_generation FAILED      [ 43%]
+tests/test_mcts_node.py::test_mcts_node_init PASSED                      [ 44%]
+tests/test_mcts_node.py::test_mcts_node_expand PASSED                    [ 44%]
+tests/test_mcts_node.py::test_expand_terminal_node PASSED                [ 45%]
+tests/test_mcts_node.py::test_mcts_node_rollout_all_fouls PASSED         [ 46%]
+tests/test_mcts_node.py::test_mcts_node_rollout_simple_win PASSED        [ 46%]
+tests/test_mcts_node.py::test_rollout_from_terminal PASSED               [ 47%]
+tests/test_mcts_node.py::test_uct_select_child_no_children PASSED        [ 47%]
+tests/test_mcts_node.py::test_uct_select_child_unvisited PASSED          [ 48%]
+tests/test_mcts_node.py::test_uct_select_child_visited FAILED            [ 49%]
+tests/test_mcts_node.py::test_backpropagate_updates_stats PASSED         [ 49%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str0-3-True] PASSED [ 50%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str1-3-True] PASSED [ 50%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str2-3-True] PASSED [ 51%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str3-5-False] PASSED [ 52%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str4-5-False] PASSED [ 52%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str5-5-False] PASSED [ 53%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str6-5-False] PASSED [ 53%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str7-5-False] PASSED [ 54%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str8-5-False] PASSED [ 55%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str9-5-False] PASSED [ 55%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str10-5-False] PASSED [ 56%]
+tests/test_scoring.py::test_get_hand_rank_safe_valid[cards_str11-5-False] PASSED [ 56%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str0-8462] PASSED [ 57%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str1-8462] PASSED [ 58%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str2-8462] PASSED [ 58%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str3-8462] PASSED [ 59%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str4-8462] PASSED [ 60%]
+tests/test_scoring.py::test_get_hand_rank_safe_incomplete[cards_str5-8462] PASSED [ 60%]
+tests/test_scoring.py::test_get_hand_rank_safe_invalid_input PASSED      [ 61%]
+tests/test_scoring.py::test_get_hand_rank_safe_duplicates PASSED         [ 61%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str0-22] PASSED    [ 62%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str1-21] PASSED    [ 63%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str2-14] PASSED    [ 63%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str3-10] PASSED    [ 64%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str4-9] PASSED     [ 64%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str5-7] PASSED     [ 65%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str6-1] FAILED     [ 66%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str7-0] FAILED     [ 66%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str8-0] PASSED     [ 67%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str9-0] PASSED     [ 67%]
+tests/test_scoring.py::test_get_row_royalty_top[cards_str10-0] PASSED    [ 68%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str0-50] PASSED [ 69%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str1-30] PASSED [ 69%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str2-20] PASSED [ 70%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str3-12] PASSED [ 70%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str4-8] PASSED  [ 71%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str5-4] PASSED  [ 72%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str6-2] PASSED  [ 72%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str7-0] PASSED  [ 73%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str8-0] PASSED  [ 73%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str9-0] PASSED  [ 74%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str10-0] PASSED [ 75%]
+tests/test_scoring.py::test_get_row_royalty_middle[cards_str11-0] PASSED [ 75%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str0-25] PASSED [ 76%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str1-15] PASSED [ 76%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str2-10] PASSED [ 77%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str3-6] PASSED  [ 78%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str4-4] PASSED  [ 78%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str5-2] PASSED  [ 79%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str6-0] PASSED  [ 80%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str7-0] PASSED  [ 80%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str8-0] PASSED  [ 81%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str9-0] PASSED  [ 81%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str10-0] PASSED [ 82%]
+tests/test_scoring.py::test_get_row_royalty_bottom[cards_str11-0] PASSED [ 83%]
+tests/test_scoring.py::test_check_board_foul_valid FAILED                [ 83%]
+tests/test_scoring.py::test_check_board_foul_invalid FAILED              [ 84%]
+tests/test_scoring.py::test_check_board_foul_incomplete PASSED           [ 84%]
+tests/test_scoring.py::test_check_board_foul_duplicates PASSED           [ 85%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str0-17] PASSED [ 86%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str1-17] PASSED [ 86%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str2-16] PASSED [ 87%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str3-15] FAILED [ 87%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str4-14] FAILED [ 88%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str5-0] FAILED [ 89%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str6-0] FAILED [ 89%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str7-0] PASSED [ 90%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str8-0] PASSED [ 90%]
+tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str9-0] PASSED [ 91%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str0-middle_str0-bottom_str0-True] FAILED [ 92%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str1-middle_str1-bottom_str1-True] FAILED [ 92%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str2-middle_str2-bottom_str2-True] FAILED [ 93%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str3-middle_str3-bottom_str3-False] PASSED [ 93%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str4-middle_str4-bottom_str4-False] PASSED [ 94%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str5-middle_str5-bottom_str5-False] PASSED [ 95%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str6-middle_str6-bottom_str6-False] PASSED [ 95%]
+tests/test_scoring.py::test_check_fantasyland_stay[top_str7-middle_str7-bottom_str7-False] PASSED [ 96%]
+tests/test_scoring.py::test_calculate_headsup_score[board10-board20-70] PASSED [ 96%]
+tests/test_scoring.py::test_calculate_headsup_score[board11-board21--35] FAILED [ 97%]
+tests/test_scoring.py::test_calculate_headsup_score[board12-board22-14] FAILED [ 98%]
+tests/test_scoring.py::test_calculate_headsup_score[board13-board23--6] FAILED [ 98%]
+tests/test_scoring.py::test_calculate_headsup_score[board14-board24-70] PASSED [ 99%]
+tests/test_scoring.py::test_calculate_headsup_score[board15-board25-0] PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_board_set_full_board_valid ________________________
+
+    def test_board_set_full_board_valid():
+        """Тестирует установку валидной полной доски."""
+        board = PlayerBoard()
+        top = hand(['Ah', 'Ad', 'Ac']) # Trips
+        middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s']) # 2 Pair
+        bottom = hand(['As', 'Kh', 'Qs', 'Js', 'Ts']) # Flush
+        board.set_full_board(top, middle, bottom)
+    
+        assert board.is_complete()
+        assert board.get_total_cards() == 13
+        assert board.rows['top'] == top
+        assert board.rows['middle'] == middle
+        assert board.rows['bottom'] == bottom
+        # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
+>       assert not board.is_foul # Top(Trips) > Mid(2Pair) > Bot(Flush)
+E       assert not True
+E        +  where True = PlayerBoard(Cards=13, Complete=True, Foul=True).is_foul
+
+tests/test_board.py:138: AssertionError
+_______________________ test_board_get_rank_and_royalty ________________________
+
+    def test_board_get_rank_and_royalty():
+        """Тестирует получение рангов и роялти (делегирование в scoring)."""
+        board = PlayerBoard()
+        bottom = hand(['Ac', 'Ad', 'Ah', 'Ks', 'Kd']) # FH
+        middle = hand(['2h', '5h', '8h', 'Th', 'Qh']) # Flush
+        top = hand(['Qc', 'Qd', '2s']) # Pair QQ
+        for i, c in enumerate(bottom): board.add_card(c, 'bottom', i)
+        for i, c in enumerate(middle): board.add_card(c, 'middle', i)
+        for i, c in enumerate(top): board.add_card(c, 'top', i)
+    
+        assert board.is_complete()
+        # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
+>       assert not board.check_and_set_foul() # Top(QQ) < Mid(Flush) < Bot(FH)
+E       assert not True
+E        +  where True = <bound method PlayerBoard.check_and_set_foul of PlayerBoard(Cards=13, Complete=True, Foul=True)>()
+E        +    where <bound method PlayerBoard.check_and_set_foul of PlayerBoard(Cards=13, Complete=True, Foul=True)> = PlayerBoard(Cards=13, Complete=True, Foul=True).check_and_set_foul
+
+tests/test_board.py:210: AssertionError
+________________________ test_board_fantasyland_methods ________________________
+
+    def test_board_fantasyland_methods():
+        """Тестирует методы, связанные с Fantasyland."""
+        # Доска для входа в ФЛ (QQ)
+        board_qq = PlayerBoard()
+        board_qq.set_full_board(hand(['Qc','Qd','2s']), hand(['3h','4h','5h','6h','7h']), hand(['Ac','Ad','Ah','Ks','Kd']))
+        # --- ИСПРАВЛЕНО: Ожидаем НЕ фол ---
+>       assert not board_qq.is_foul # Top(QQ) < Mid(Straight) < Bot(FH)
+E       assert not True
+E        +  where True = PlayerBoard(Cards=13, Complete=True, Foul=True).is_foul
+
+tests/test_board.py:247: AssertionError
+__________________________ test_get_board_state_tuple __________________________
+
+    def test_get_board_state_tuple():
+        """Тестирует создание каноничного кортежа состояния доски."""
+        board = PlayerBoard()
+        board.add_card(card_from_str('As'), 'top', 0)
+        board.add_card(card_from_str('2c'), 'top', 2)
+        board.add_card(card_from_str('Kd'), 'middle', 1)
+        board.add_card(card_from_str('Qh'), 'middle', 3)
+        board.add_card(card_from_str('Ts'), 'bottom', 4)
+    
+        state_tuple = board.get_board_state_tuple()
+        assert isinstance(state_tuple, tuple)
+        assert len(state_tuple) == 3
+        assert all(isinstance(row_tuple, tuple) for row_tuple in state_tuple)
+        assert state_tuple[0] == ('As', '2c', CARD_PLACEHOLDER)
+        assert state_tuple[1] == ('Kd', 'Qh', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
+        assert state_tuple[2] == ('Ts', CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER, CARD_PLACEHOLDER)
+    
+        # Полная доска
+        board_full = PlayerBoard()
+        board_full.set_full_board(hand(['Qc','Qd','2s']), hand(['3h','4h','5h','6h','7h']), hand(['Ac','Ad','Ah','Ks','Kd']))
+        state_tuple_full = board_full.get_board_state_tuple()
+        # --- ИСПРАВЛЕНО: Проверяем сортировку по масти (s > h > d > c) ---
+        assert state_tuple_full[0] == ('Qd', 'Qc', '2s') # d > c
+        assert state_tuple_full[1] == ('7h', '6h', '5h', '4h', '3h')
+>       assert state_tuple_full[2] == ('As', 'Ah', 'Ad', 'Ks', 'Kd') # s > h > d
+E       AssertionError: assert ('Ah', 'Ad', 'Ac', 'Ks', 'Kd') == ('As', 'Ah', 'Ad', 'Ks', 'Kd')
+E         At index 0 diff: 'Ah' != 'As'
+E         Full diff:
+E         - ('As', 'Ah', 'Ad', 'Ks', 'Kd')
+E         ?  ------
+E         + ('Ah', 'Ad', 'Ac', 'Ks', 'Kd')
+E         ?              ++++++
+
+tests/test_board.py:344: AssertionError
+_________________ test_gamestate_apply_action_completes_board __________________
+
+    def test_gamestate_apply_action_completes_board():
+        """Тест, что apply_action корректно обрабатывает завершение доски."""
+        state = GameState()
+        # Почти полная доска P0
+        board = state.boards[0]
+        cards_on_board = hand(['2c','3c','4c','5c','6c','7c','8c','9c','Tc','Jc','Qc'])
+        idx = 0
+        for r in ['bottom', 'middle']:
+            for i in range(5): board.add_card(cards_on_board[idx], r, i); idx+=1
+        for i in range(1): board.add_card(cards_on_board[idx], 'top', i); idx+=1
+        assert board.get_total_cards() == 11
+    
+        state.street = 5 # Последняя улица
+        state._internal_current_player_idx = 0
+        hand_p0 = hand(['Ac', 'Ad', 'Ah']) # Рука для завершения
+        state.current_hands[0] = hand_p0
+    
+        # Действие: Положить Ac, Ad в top[1], top[2], сбросить Ah
+        p1 = (hand_p0[0], 'top', 1)
+        p2 = (hand_p0[1], 'top', 2)
+        discard = hand_p0[2]
+        # --- ИСПРАВЛЕНО: Сортируем placement для каноничности ---
+        action = tuple(sorted((p1, p2))) + (discard,)
+        next_state = state.apply_action(0, action)
+    
+        # --- ИСПРАВЛЕНО: Проверяем is_complete() ---
+        assert next_state.boards[0].is_complete()
+        assert next_state._player_finished_round[0] is True
+        # Проверяем, что статус ФЛ обновился (здесь AA -> 16 карт)
+>       assert next_state.next_fantasyland_status[0] is True
+E       assert False is True
+
+tests/test_game_state.py:192: AssertionError
+___________________ test_gamestate_advance_state_fantasyland ___________________
+
+    def test_gamestate_advance_state_fantasyland():
+        """Тестирует advance_state в раунде Фантазии."""
+        # P0 в ФЛ (14 карт), P1 не в ФЛ. Дилер P0.
+        state = GameState(fantasyland_status=[True, False], fantasyland_cards_to_deal=[14, 0])
+        state.start_new_round(0) # Раздаются карты P0(FL) и P1(Street 1)
+        # --- ИСПРАВЛЕНО: Первым ходит P1 (не-ФЛ) ---
+        assert state.get_player_to_move() == 1
+    
+        # P1 ходит на улице 1
+        hand_p1_s1 = state.current_hands[1]
+        action_p1_s1 = (tuple(sorted([(hand_p1_s1[i], 'bottom', i) for i in range(5)])), tuple())
+        state_after_p1_s1 = state.apply_action(1, action_p1_s1)
+        assert state_after_p1_s1._last_player_acted == 1
+    
+        # Продвигаем состояние: P1 сходил, P0 (ФЛ) еще нет. Ход должен перейти к P0.
+        state_after_advance1 = state_after_p1_s1.advance_state()
+        # Раздача карт не должна произойти
+>       assert state_after_advance1.street == 1 # Улица не меняется
+E       assert 2 == 1
+E        +  where 2 = <src.game_state.GameState object at 0x779938b35b50>.street
+
+tests/test_game_state.py:356: AssertionError
+_____________ test_gamestate_advance_state_fl_non_fl_player_moves ______________
+
+    def test_gamestate_advance_state_fl_non_fl_player_moves():
+        """Тест: P0 в ФЛ, P1 (не ФЛ) ходит на улице 2."""
+        state = GameState(fantasyland_status=[True, False], fantasyland_cards_to_deal=[14, 0])
+        state.start_new_round(0)
+        # Пропускаем ходы до улицы 2, ход P1
+        state.street = 2
+        state._internal_current_player_idx = 1
+        state.current_hands[1] = hand(['Ac','Kc','Qc'])
+        state.fantasyland_hands[0] = hand(['2s']*14) # Даем руку P0 ФЛ
+        state._player_finished_round = [False, False]
+        state._player_acted_this_street = [False, False]
+    
+        assert state.get_player_to_move() == 1
+        # P1 ходит
+        hand_p1 = state.current_hands[1]
+        action_p1 = (tuple(sorted(((hand_p1[0], 'top', 0), (hand_p1[1], 'middle', 0)))), hand_p1[2])
+>       state = state.apply_action(1, action_p1)
+
+tests/test_game_state.py:390: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <src.game_state.GameState object at 0x779938b51810>, player_idx = 1
+action = (((134253349, 'middle', 0), (268471337, 'top', 0)), 67144223)
+
+    def apply_action(self, player_idx: int, action: Any) -> 'GameState':
+        """
+        Применяет легальное действие ОБЫЧНОГО ХОДА к копии состояния.
+        Возвращает новое состояние или выбрасывает исключение при ошибке.
+        """
+        if not (0 <= player_idx < self.NUM_PLAYERS):
+            raise IndexError(f"Invalid player index: {player_idx}")
+        if self.is_fantasyland_round and self.fantasyland_status[player_idx]:
+            raise RuntimeError(f"Player {player_idx} is in Fantasyland. Use apply_fantasyland_placement/foul.")
+        if self._player_finished_round[player_idx]:
+             raise RuntimeError(f"Player {player_idx} has already finished the round.")
+        # --- ИСПРАВЛЕНО: Проверяем, действительно ли ход этого игрока ---
+        if self.get_player_to_move() != player_idx:
+             raise RuntimeError(f"Attempted to apply action for player {player_idx}, but it's player {self.get_player_to_move()}'s turn.")
+    
+    
+        new_state = self.copy()
+        board = new_state.boards[player_idx]
+        current_hand = new_state.current_hands.get(player_idx)
+    
+        if not current_hand:
+            raise RuntimeError(f"Player {player_idx} has no hand to apply action.")
+    
+        logger.debug(f"Applying action for Player {player_idx} on Street {new_state.street}")
+    
+        # --- Применение действия ---
+        try:
+            if new_state.street == 1:
+                if len(current_hand) != 5: raise ValueError(f"Invalid hand size {len(current_hand)} for street 1.")
+                if not isinstance(action, tuple) or len(action) != 2 or not isinstance(action[0], tuple) or action[1] != tuple():
+                     raise TypeError(f"Invalid action format for street 1: {type(action)}, {action}")
+                placements = action[0]
+                if len(placements) != 5: raise ValueError("Street 1 action requires exactly 5 placements.")
+    
+                placed_cards_in_action = set()
+                hand_set = set(current_hand)
+                for place_data in placements:
+                    if not isinstance(place_data, tuple) or len(place_data) != 3: raise ValueError("Invalid placement format.")
+                    card, row, idx = place_data
+                    if card not in hand_set: raise ValueError(f"Card {card_to_str(card)} in action not found in hand.")
+                    if card in placed_cards_in_action: raise ValueError(f"Duplicate card {card_to_str(card)} in action.")
+                    if not board.add_card(card, row, idx):
+                        raise RuntimeError(f"Failed to add card {card_to_str(card)} to {row}[{idx}]. Slot might be occupied or invalid.")
+                    placed_cards_in_action.add(card)
+    
+            elif 2 <= new_state.street <= 5:
+                if len(current_hand) != 3: raise ValueError(f"Invalid hand size {len(current_hand)} for street {new_state.street}.")
+>               if not isinstance(action, tuple) or len(action) != 3: raise TypeError(f"Invalid action format for street {new_state.street}: {type(action)}")
+E               TypeError: Invalid action format for street 2: <class 'tuple'>
+
+src/game_state.py:289: TypeError
+------------------------------ Captured log call -------------------------------
+ERROR    flask.app:game_state.py:335 Error applying action for Player 1: Invalid action format for street 2: <class 'tuple'>
+Traceback (most recent call last):
+  File "/app/src/game_state.py", line 289, in apply_action
+    if not isinstance(action, tuple) or len(action) != 3: raise TypeError(f"Invalid action format for street {new_state.street}: {type(action)}")
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Invalid action format for street 2: <class 'tuple'>
+____________________ test_gamestate_end_of_round_and_score _____________________
+
+    def test_gamestate_end_of_round_and_score():
+        """Тестирует is_round_over и get_terminal_score."""
+        state = GameState()
+        # Создаем завершенное состояние (данные из test_scoring)
+        board1 = PlayerBoard(); board1.set_full_board(hand(['Ah','Ad','Kc']), hand(['7h','8h','9h','Th','Jh']), hand(['As','Ks','Qs','Js','Ts'])) # R=64
+        board2 = PlayerBoard(); board2.set_full_board(hand(['Kh','Qd','2c']), hand(['Ac','Kd','Qh','Js','9d']), hand(['Tc','Td','Th','2s','3s'])) # R=0
+        state.boards = [board1, board2]
+        state._player_finished_round = [True, True] # Оба завершили
+        state.street = 6 # Условно ставим улицу > 5
+    
+        assert state.is_round_over()
+        # get_terminal_score возвращает счет с точки зрения P0
+        assert state.get_terminal_score() == 70 # Было 70 в тесте scoring
+    
+        # Случай с фолом P1
+        # --- ИСПРАВЛЕНО: Убран дубликат карты ---
+        board1_foul = PlayerBoard(); board1_foul.set_full_board(hand(['Ah','Ad','Ac']), hand(['Ks','Kd','Qc','Qd','2s']), hand(['As','Kh','Qs','Js','Ts'])) # Foul, R=0
+        state.boards = [board1_foul, board2]
+        assert state.is_round_over()
+>       assert state.get_terminal_score() == -6 # P1 фол, P2 R=0 -> P0 получает -6
+E       assert 0 == -6
+E        +  where 0 = <bound method GameState.get_terminal_score of <src.game_state.GameState object at 0x779938cada90>>()
+E        +    where <bound method GameState.get_terminal_score of <src.game_state.GameState object at 0x779938cada90>> = <src.game_state.GameState object at 0x779938cada90>.get_terminal_score
+
+tests/test_game_state.py:419: AssertionError
+__________________ test_gamestate_fantasyland_entry_and_stay ___________________
+
+    def test_gamestate_fantasyland_entry_and_stay():
+        """Тестирует обновление next_fantasyland_status."""
+        state = GameState()
+        state.street = 5
+        state._internal_current_player_idx = 0
+        # Рука для входа в ФЛ (AAK -> 16 карт)
+        hand_entry = hand(['Ac', 'Ad', 'Kc'])
+        state.current_hands[0] = hand_entry
+        # Заполняем доску P0 так, чтобы она была валидной и завершилась этим ходом
+        board = state.boards[0]
+        cards_on_board = hand(['2c','3c','4c','5c','6c','7c','8c','9c','Tc','Jc']) # 10 карт
+        idx = 0
+        for r in ['bottom', 'middle']:
+            for i in range(5): board.add_card(cards_on_board[idx], r, i); idx+=1
+        assert board.get_total_cards() == 10
+    
+        # Действие: Положить Ac, Ad в top[0], top[1], сбросить Kc
+        p1 = (hand_entry[0], 'top', 0)
+        p2 = (hand_entry[1], 'top', 1)
+        discard = hand_entry[2]
+        action_entry = tuple(sorted((p1, p2))) + (discard,)
+        state_after_entry = state.apply_action(0, action_entry)
+    
+        # --- ИСПРАВЛЕНО: Доска должна быть завершена ---
+>       assert state_after_entry.boards[0].is_complete()
+E       assert False
+E        +  where False = <bound method PlayerBoard.is_complete of PlayerBoard(Cards=12, Complete=False, Foul=False)>()
+E        +    where <bound method PlayerBoard.is_complete of PlayerBoard(Cards=12, Complete=False, Foul=False)> = PlayerBoard(Cards=12, Complete=False, Foul=False).is_complete
+
+tests/test_game_state.py:447: AssertionError
+_________________________ test_lookup_table_generation _________________________
+
+    def test_lookup_table_generation():
+        """Тестирует полноту сгенерированных таблиц."""
+        # Перехватываем вывод print во время инициализации
+        # (можно использовать capsys фикстуру pytest, но пока просто создаем)
+        lookup = LookupTable()
+        # Проверяем ожидаемое количество записей
+        assert len(lookup.flush_lookup) == 1287, f"Flush lookup size: {len(lookup.flush_lookup)}"
+        assert len(lookup.unsuited_lookup) == 6175, f"Unsuited lookup size: {len(lookup.unsuited_lookup)}"
+    
+        # Проверяем несколько ключевых рангов
+        # Royal Flush
+        rf_bits = 0b1111100000000
+        # --- ИСПРАВЛЕНО: Используем импортированный CardUtils ---
+        rf_prime = CardUtils.prime_product_from_rankbits(rf_bits)
+        assert lookup.flush_lookup.get(rf_prime) == 1, "Royal Flush rank mismatch"
+    
+        # Straight Flush (Wheel)
+        wheel_sf_bits = 0b1000000001111
+        # --- ИСПРАВЛЕНО: Используем импортированный CardUtils ---
+        wheel_sf_prime = CardUtils.prime_product_from_rankbits(wheel_sf_bits)
+>       assert lookup.flush_lookup.get(wheel_sf_prime) == 10, "Wheel SF rank mismatch"
+E       AssertionError: Wheel SF rank mismatch
+E       assert 2 == 10
+E        +  where 2 = <built-in method get of dict object at 0x779938e0bb40>(8610)
+E        +    where <built-in method get of dict object at 0x779938e0bb40> = {2310: 10, 2730: 1599, 3570: 1595, 3990: 1581, ...}.get
+E        +      where {2310: 10, 2730: 1599, 3570: 1595, 3990: 1581, ...} = <src.evaluator.ofc_5card_lookup.LookupTable object at 0x779938db0490>.flush_lookup
+
+tests/test_lookup_generator.py:63: AssertionError
+----------------------------- Captured stdout call -----------------------------
+Initializing 5-card lookup tables...
+Lookup tables initialized. Flush: 1287, Unsuited: 6175
+________________________ test_uct_select_child_visited _________________________
+
+    def test_uct_select_child_visited():
+        # --- ИСПРАВЛЕНО: Рука P1 должна иметь 5 карт ---
+        state = create_simple_state(street=1, dealer=0, p1_hand_str=['Ac','Kc','Qc','Jc','Tc'])
+        root = MCTSNode(state)
+        # Создаем двух детей
+        legal_actions = state.get_legal_actions_for_player(1)
+        # --- ИСПРАВЛЕНО: Проверяем, что есть хотя бы 2 действия ---
+        assert len(legal_actions) >= 2, "Need at least 2 legal actions for this test"
+    
+        action1 = legal_actions[0]
+        next_state1 = state.apply_action(1, action1)
+        child1 = MCTSNode(next_state1, parent=root, action=action1)
+        root.children[action1] = child1
+    
+        action2 = legal_actions[1]
+        next_state2 = state.apply_action(1, action2)
+        child2 = MCTSNode(next_state2, parent=root, action=action2)
+        root.children[action2] = child2
+    
+        root.untried_actions = [] # Убираем неиспробованные
+        root.visits = 10
+        child1.visits = 5
+        child1.total_reward = 3.0 # Q(P0) = 0.6 -> Q(P1) = -0.6
+        child2.visits = 3
+        child2.total_reward = -1.0 # Q(P0) = -0.33 -> Q(P1) = 0.33
+    
+        root.rave_visits = {}
+        root.rave_total_reward = {}
+    
+        # Выбираем с точки зрения P1 (текущий игрок)
+        selected = root.uct_select_child(1.4, 0) # RAVE отключен (k=0)
+        # UCT(child1) = -0.6 + 1.4 * sqrt(log(11)/5) ~ -0.6 + 1.4 * 0.69 = 0.366
+        # UCT(child2) = 0.33 + 1.4 * sqrt(log(11)/3) ~ 0.33 + 1.4 * 0.89 = 1.576
+>       assert selected == child2 # child2 имеет более высокий UCT score для P1
+E       assert [T Act:STREET 1: Place [Tc@top0, Jc@bottom... V=5 Q0=-0.600 NChild=0 UAct=0] == [T Act:STREET 1: Place [Tc@middle1, Jc@top... V=3 Q0=0.333 NChild=0 UAct=0]
+
+tests/test_mcts_node.py:189: AssertionError
+____________________ test_get_row_royalty_top[cards_str6-1] ____________________
+
+cards_str = ['6h', '6d', 'Ac'], expected_royalty = 1
+
+    @pytest.mark.parametrize("cards_str, expected_royalty", [
+        (['Ah', 'Ad', 'Ac'], ROYALTY_TOP_TRIPS[RANK_MAP['A']]), # 22
+        (['Kh', 'Kd', 'Kc'], ROYALTY_TOP_TRIPS[RANK_MAP['K']]), # 21
+        (['6h', '6d', '6c'], ROYALTY_TOP_TRIPS[RANK_MAP['6']]), # 14
+        (['2h', '2d', '2c'], ROYALTY_TOP_TRIPS[RANK_MAP['2']]), # 10
+        (['Ah', 'Ad', 'Kc'], ROYALTY_TOP_PAIRS[RANK_MAP['A']]), # 9
+        (['Qh', 'Qd', '2c'], ROYALTY_TOP_PAIRS[RANK_MAP['Q']]), # 7
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['6h', '6d', 'Ac'], ROYALTY_TOP_PAIRS[RANK_MAP['6']]), # 1
+        (['5h', '5d', 'Ac'], 0), # Пара ниже 66
+        (['Ah', 'Kc', 'Qd'], 0), # Старшая карта
+        (['Ah', 'Ad', None], 0), # Неполная рука
+        (['Ah', 'Ah', 'Kc'], 0), # Дубликат
+    ])
+    def test_get_row_royalty_top(cards_str, expected_royalty):
+        cards_int = hand(cards_str)
+>       assert get_row_royalty(cards_int, "top") == expected_royalty
+E       AssertionError: assert 9 == 1
+E        +  where 9 = get_row_royalty([1057803, 1065995, 268471337], 'top')
+
+tests/test_scoring.py:101: AssertionError
+____________________ test_get_row_royalty_top[cards_str7-0] ____________________
+
+cards_str = ['5h', '5d', 'Ac'], expected_royalty = 0
+
+    @pytest.mark.parametrize("cards_str, expected_royalty", [
+        (['Ah', 'Ad', 'Ac'], ROYALTY_TOP_TRIPS[RANK_MAP['A']]), # 22
+        (['Kh', 'Kd', 'Kc'], ROYALTY_TOP_TRIPS[RANK_MAP['K']]), # 21
+        (['6h', '6d', '6c'], ROYALTY_TOP_TRIPS[RANK_MAP['6']]), # 14
+        (['2h', '2d', '2c'], ROYALTY_TOP_TRIPS[RANK_MAP['2']]), # 10
+        (['Ah', 'Ad', 'Kc'], ROYALTY_TOP_PAIRS[RANK_MAP['A']]), # 9
+        (['Qh', 'Qd', '2c'], ROYALTY_TOP_PAIRS[RANK_MAP['Q']]), # 7
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['6h', '6d', 'Ac'], ROYALTY_TOP_PAIRS[RANK_MAP['6']]), # 1
+        (['5h', '5d', 'Ac'], 0), # Пара ниже 66
+        (['Ah', 'Kc', 'Qd'], 0), # Старшая карта
+        (['Ah', 'Ad', None], 0), # Неполная рука
+        (['Ah', 'Ah', 'Kc'], 0), # Дубликат
+    ])
+    def test_get_row_royalty_top(cards_str, expected_royalty):
+        cards_int = hand(cards_str)
+>       assert get_row_royalty(cards_int, "top") == expected_royalty
+E       AssertionError: assert 9 == 0
+E        +  where 9 = get_row_royalty([533255, 541447, 268471337], 'top')
+
+tests/test_scoring.py:101: AssertionError
+_________________________ test_check_board_foul_valid __________________________
+
+    def test_check_board_foul_valid():
+        top = hand(['Ah', 'Kc', 'Qd']) # High Card
+        middle = hand(['2s', '2d', '3c', '4h', '5s']) # Pair
+        bottom = hand(['7h', '7d', '7c', 'As', 'Ks']) # Trips
+        # --- ИСПРАВЛЕНО: Ожидаем False (не фол) ---
+>       assert not check_board_foul(top, middle, bottom)
+E       assert not True
+E        +  where True = check_board_foul([268446761, 134253349, 67127839], [69634, 81922, 164099, 270853, 529159], [2106637, 2114829, 2131213, 268442665, 134224677])
+
+tests/test_scoring.py:147: AssertionError
+________________________ test_check_board_foul_invalid _________________________
+
+    def test_check_board_foul_invalid():
+        # Middle > Top
+        top = hand(['2h', '3c', '4d']) # High Card
+        middle = hand(['As', 'Ad', 'Ac', 'Ks', 'Kd']) # Trips
+        bottom = hand(['Qs', 'Qd', 'Jc', 'Jh', '2s']) # Two Pair
+        assert check_board_foul(top, middle, bottom)
+        # Bottom > Middle
+        top = hand(['Ah', 'Ad', 'Ac']) # Trips
+        middle = hand(['Ks', 'Kd', 'Qc', 'Qd', '2s']) # Two Pair
+        bottom = hand(['As', 'Ks', 'Qs', 'Js', 'Ts']) # Royal Flush
+        # --- ИСПРАВЛЕНО: Ожидаем True (фол) ---
+>       assert check_board_foul(top, middle, bottom)
+E       assert False
+E        +  where False = check_board_foul([268446761, 268454953, 268471337], [134224677, 134236965, 67144223, 67127839, 69634], [268442665, 134224677, 67115551, 33560861, 16783383])
+
+tests/test_scoring.py:160: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  src.scoring:scoring.py:219 Duplicate cards detected across rows in check_board_foul. Hand is invalid, returning False (not foul).
+______________ test_get_fantasyland_entry_cards[top_hand_str3-15] ______________
+
+top_hand_str = ['Kh', 'Kd', 'Ac'], expected_cards = 15
+
+    @pytest.mark.parametrize("top_hand_str, expected_cards", [
+        (['Ah', 'Ad', 'Ac'], 17), # Trips A -> 17
+        (['2h', '2d', '2c'], 17), # Trips 2 -> 17
+        (['Ah', 'Ad', 'Kc'], 16), # Pair A -> 16
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['Kh', 'Kd', 'Ac'], 15), # Pair K -> 15
+        (['Qh', 'Qd', 'Ac'], 14), # Pair Q -> 14
+        (['Jh', 'Jd', 'Ac'], 0),  # Pair J -> 0
+        (['6h', '6d', 'Ac'], 0),  # Pair 6 -> 0
+        (['Ah', 'Kc', 'Qd'], 0),  # High Card -> 0
+        (['Ah', 'Ad', None], 0),  # Incomplete -> 0
+        (['Ah', 'Ah', 'Kc'], 0),  # Duplicate -> 0
+    ])
+    def test_get_fantasyland_entry_cards(top_hand_str, expected_cards):
+        top_hand_int = hand(top_hand_str)
+>       assert get_fantasyland_entry_cards(top_hand_int) == expected_cards
+E       assert 16 == 15
+E        +  where 16 = get_fantasyland_entry_cards([134228773, 134236965, 268471337])
+
+tests/test_scoring.py:191: AssertionError
+______________ test_get_fantasyland_entry_cards[top_hand_str4-14] ______________
+
+top_hand_str = ['Qh', 'Qd', 'Ac'], expected_cards = 14
+
+    @pytest.mark.parametrize("top_hand_str, expected_cards", [
+        (['Ah', 'Ad', 'Ac'], 17), # Trips A -> 17
+        (['2h', '2d', '2c'], 17), # Trips 2 -> 17
+        (['Ah', 'Ad', 'Kc'], 16), # Pair A -> 16
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['Kh', 'Kd', 'Ac'], 15), # Pair K -> 15
+        (['Qh', 'Qd', 'Ac'], 14), # Pair Q -> 14
+        (['Jh', 'Jd', 'Ac'], 0),  # Pair J -> 0
+        (['6h', '6d', 'Ac'], 0),  # Pair 6 -> 0
+        (['Ah', 'Kc', 'Qd'], 0),  # High Card -> 0
+        (['Ah', 'Ad', None], 0),  # Incomplete -> 0
+        (['Ah', 'Ah', 'Kc'], 0),  # Duplicate -> 0
+    ])
+    def test_get_fantasyland_entry_cards(top_hand_str, expected_cards):
+        top_hand_int = hand(top_hand_str)
+>       assert get_fantasyland_entry_cards(top_hand_int) == expected_cards
+E       assert 16 == 14
+E        +  where 16 = get_fantasyland_entry_cards([67119647, 67127839, 268471337])
+
+tests/test_scoring.py:191: AssertionError
+______________ test_get_fantasyland_entry_cards[top_hand_str5-0] _______________
+
+top_hand_str = ['Jh', 'Jd', 'Ac'], expected_cards = 0
+
+    @pytest.mark.parametrize("top_hand_str, expected_cards", [
+        (['Ah', 'Ad', 'Ac'], 17), # Trips A -> 17
+        (['2h', '2d', '2c'], 17), # Trips 2 -> 17
+        (['Ah', 'Ad', 'Kc'], 16), # Pair A -> 16
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['Kh', 'Kd', 'Ac'], 15), # Pair K -> 15
+        (['Qh', 'Qd', 'Ac'], 14), # Pair Q -> 14
+        (['Jh', 'Jd', 'Ac'], 0),  # Pair J -> 0
+        (['6h', '6d', 'Ac'], 0),  # Pair 6 -> 0
+        (['Ah', 'Kc', 'Qd'], 0),  # High Card -> 0
+        (['Ah', 'Ad', None], 0),  # Incomplete -> 0
+        (['Ah', 'Ah', 'Kc'], 0),  # Duplicate -> 0
+    ])
+    def test_get_fantasyland_entry_cards(top_hand_str, expected_cards):
+        top_hand_int = hand(top_hand_str)
+>       assert get_fantasyland_entry_cards(top_hand_int) == expected_cards
+E       assert 16 == 0
+E        +  where 16 = get_fantasyland_entry_cards([33564957, 33573149, 268471337])
+
+tests/test_scoring.py:191: AssertionError
+______________ test_get_fantasyland_entry_cards[top_hand_str6-0] _______________
+
+top_hand_str = ['6h', '6d', 'Ac'], expected_cards = 0
+
+    @pytest.mark.parametrize("top_hand_str, expected_cards", [
+        (['Ah', 'Ad', 'Ac'], 17), # Trips A -> 17
+        (['2h', '2d', '2c'], 17), # Trips 2 -> 17
+        (['Ah', 'Ad', 'Kc'], 16), # Pair A -> 16
+        # --- ИСПРАВЛЕНО: Ожидаемые значения ---
+        (['Kh', 'Kd', 'Ac'], 15), # Pair K -> 15
+        (['Qh', 'Qd', 'Ac'], 14), # Pair Q -> 14
+        (['Jh', 'Jd', 'Ac'], 0),  # Pair J -> 0
+        (['6h', '6d', 'Ac'], 0),  # Pair 6 -> 0
+        (['Ah', 'Kc', 'Qd'], 0),  # High Card -> 0
+        (['Ah', 'Ad', None], 0),  # Incomplete -> 0
+        (['Ah', 'Ah', 'Kc'], 0),  # Duplicate -> 0
+    ])
+    def test_get_fantasyland_entry_cards(top_hand_str, expected_cards):
+        top_hand_int = hand(top_hand_str)
+>       assert get_fantasyland_entry_cards(top_hand_int) == expected_cards
+E       assert 16 == 0
+E        +  where 16 = get_fantasyland_entry_cards([1057803, 1065995, 268471337])
+
+tests/test_scoring.py:191: AssertionError
+______ test_check_fantasyland_stay[top_str0-middle_str0-bottom_str0-True] ______
+
+top_str = ['Ah', 'Ad', 'Ac'], middle_str = ['Ks', 'Kd', 'Qc', 'Qd', '2s']
+bottom_str = ['As', 'Kh', 'Qs', 'Js', 'Ts'], expected_stay = True
+
+    @pytest.mark.parametrize("top_str, middle_str, bottom_str, expected_stay", [
+        # Stay: Trips on Top
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], ['As', 'Kh', 'Qs', 'Js', 'Ts'], True),
+        # Stay: Quads on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['7h', '7d', '7c', '7s', 'Ad'], True),
+        # Stay: Straight Flush on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['9d', '8d', '7d', '6d', '5d'], True),
+        # No Stay: High card top, Straight bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['As', 'Ks', 'Qs', 'Js', '9d'], False),
+        # No Stay: Foul (Middle > Top) - Эта доска теперь не фол, но и не stay
+        (['Ah', 'Ad', '2c'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], False),
+        # No Stay: Foul (Bottom > Middle) - Эта доска теперь фол
+        (['Ah', 'Kc', 'Qd'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['7h', '7d', '7c', '7s', 'Ad'], False),
+        # No Stay: Incomplete board
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', None], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+        # No Stay: Duplicate cards
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', 'Ah'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+    ])
+    def test_check_fantasyland_stay(top_str, middle_str, bottom_str, expected_stay):
+        top = hand(top_str)
+        middle = hand(middle_str)
+        bottom = hand(bottom_str)
+>       assert check_fantasyland_stay(top, middle, bottom) == expected_stay
+E       assert False == True
+E        +  where False = check_fantasyland_stay([268446761, 268454953, 268471337], [134224677, 134236965, 67144223, 67127839, 69634], [268442665, 134228773, 67115551, 33560861, 16783383])
+
+tests/test_scoring.py:216: AssertionError
+______ test_check_fantasyland_stay[top_str1-middle_str1-bottom_str1-True] ______
+
+top_str = ['Ah', 'Kc', 'Qd'], middle_str = ['2s', '2d', '3c', '4h', '5s']
+bottom_str = ['7h', '7d', '7c', '7s', 'Ad'], expected_stay = True
+
+    @pytest.mark.parametrize("top_str, middle_str, bottom_str, expected_stay", [
+        # Stay: Trips on Top
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], ['As', 'Kh', 'Qs', 'Js', 'Ts'], True),
+        # Stay: Quads on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['7h', '7d', '7c', '7s', 'Ad'], True),
+        # Stay: Straight Flush on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['9d', '8d', '7d', '6d', '5d'], True),
+        # No Stay: High card top, Straight bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['As', 'Ks', 'Qs', 'Js', '9d'], False),
+        # No Stay: Foul (Middle > Top) - Эта доска теперь не фол, но и не stay
+        (['Ah', 'Ad', '2c'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], False),
+        # No Stay: Foul (Bottom > Middle) - Эта доска теперь фол
+        (['Ah', 'Kc', 'Qd'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['7h', '7d', '7c', '7s', 'Ad'], False),
+        # No Stay: Incomplete board
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', None], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+        # No Stay: Duplicate cards
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', 'Ah'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+    ])
+    def test_check_fantasyland_stay(top_str, middle_str, bottom_str, expected_stay):
+        top = hand(top_str)
+        middle = hand(middle_str)
+        bottom = hand(bottom_str)
+>       assert check_fantasyland_stay(top, middle, bottom) == expected_stay
+E       assert False == True
+E        +  where False = check_fantasyland_stay([268446761, 134253349, 67127839], [69634, 81922, 164099, 270853, 529159], [2106637, 2114829, 2131213, 2102541, 268454953])
+
+tests/test_scoring.py:216: AssertionError
+______ test_check_fantasyland_stay[top_str2-middle_str2-bottom_str2-True] ______
+
+top_str = ['Ah', 'Kc', 'Qd'], middle_str = ['2s', '2d', '3c', '4h', '5s']
+bottom_str = ['9d', '8d', '7d', '6d', '5d'], expected_stay = True
+
+    @pytest.mark.parametrize("top_str, middle_str, bottom_str, expected_stay", [
+        # Stay: Trips on Top
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], ['As', 'Kh', 'Qs', 'Js', 'Ts'], True),
+        # Stay: Quads on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['7h', '7d', '7c', '7s', 'Ad'], True),
+        # Stay: Straight Flush on Bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['9d', '8d', '7d', '6d', '5d'], True),
+        # No Stay: High card top, Straight bottom
+        (['Ah', 'Kc', 'Qd'], ['2s', '2d', '3c', '4h', '5s'], ['As', 'Ks', 'Qs', 'Js', '9d'], False),
+        # No Stay: Foul (Middle > Top) - Эта доска теперь не фол, но и не stay
+        (['Ah', 'Ad', '2c'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['Ks', 'Kd', 'Qc', 'Qd', '2s'], False),
+        # No Stay: Foul (Bottom > Middle) - Эта доска теперь фол
+        (['Ah', 'Kc', 'Qd'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], ['7h', '7d', '7c', '7s', 'Ad'], False),
+        # No Stay: Incomplete board
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', None], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+        # No Stay: Duplicate cards
+        (['Ah', 'Ad', 'Ac'], ['Ks', 'Kd', 'Qc', 'Qd', 'Ah'], ['As', 'Ks', 'Qs', 'Js', 'Ts'], False),
+    ])
+    def test_check_fantasyland_stay(top_str, middle_str, bottom_str, expected_stay):
+        top = hand(top_str)
+        middle = hand(middle_str)
+        bottom = hand(bottom_str)
+>       assert check_fantasyland_stay(top, middle, bottom) == expected_stay
+E       assert False == True
+E        +  where False = check_fantasyland_stay([268446761, 134253349, 67127839], [69634, 81922, 164099, 270853, 529159], [8406803, 4212241, 2114829, 1065995, 541447])
+
+tests/test_scoring.py:216: AssertionError
+______________ test_calculate_headsup_score[board11-board21--35] _______________
+
+board1 = PlayerBoard(Cards=13, Complete=True, Foul=True)
+board2 = PlayerBoard(Cards=13, Complete=True, Foul=False), expected_score = -35
+
+    @pytest.mark.parametrize("board1, board2, expected_score", [
+        test_score_p1_scoop_data,
+        test_score_p2_scoop_data,
+        test_score_mix_data,
+        test_score_p1_foul_data,
+        test_score_p2_foul_data,
+        test_score_both_foul_data,
+    ])
+    def test_calculate_headsup_score(board1, board2, expected_score):
+        """Тестирует расчет итогового счета между двумя игроками."""
+>       assert calculate_headsup_score(board1, board2) == expected_score
+E       assert -37 == -35
+E        +  where -37 = calculate_headsup_score(PlayerBoard(Cards=13, Complete=True, Foul=True), PlayerBoard(Cards=13, Complete=True, Foul=False))
+
+tests/test_scoring.py:271: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  src.scoring:scoring.py:219 Duplicate cards detected across rows in check_board_foul. Hand is invalid, returning False (not foul).
+_______________ test_calculate_headsup_score[board12-board22-14] _______________
+
+board1 = PlayerBoard(Cards=13, Complete=True, Foul=True)
+board2 = PlayerBoard(Cards=13, Complete=True, Foul=True), expected_score = 14
+
+    @pytest.mark.parametrize("board1, board2, expected_score", [
+        test_score_p1_scoop_data,
+        test_score_p2_scoop_data,
+        test_score_mix_data,
+        test_score_p1_foul_data,
+        test_score_p2_foul_data,
+        test_score_both_foul_data,
+    ])
+    def test_calculate_headsup_score(board1, board2, expected_score):
+        """Тестирует расчет итогового счета между двумя игроками."""
+>       assert calculate_headsup_score(board1, board2) == expected_score
+E       assert 0 == 14
+E        +  where 0 = calculate_headsup_score(PlayerBoard(Cards=13, Complete=True, Foul=True), PlayerBoard(Cards=13, Complete=True, Foul=True))
+
+tests/test_scoring.py:271: AssertionError
+_______________ test_calculate_headsup_score[board13-board23--6] _______________
+
+board1 = PlayerBoard(Cards=13, Complete=True, Foul=True)
+board2 = PlayerBoard(Cards=13, Complete=True, Foul=True), expected_score = -6
+
+    @pytest.mark.parametrize("board1, board2, expected_score", [
+        test_score_p1_scoop_data,
+        test_score_p2_scoop_data,
+        test_score_mix_data,
+        test_score_p1_foul_data,
+        test_score_p2_foul_data,
+        test_score_both_foul_data,
+    ])
+    def test_calculate_headsup_score(board1, board2, expected_score):
+        """Тестирует расчет итогового счета между двумя игроками."""
+>       assert calculate_headsup_score(board1, board2) == expected_score
+E       assert 0 == -6
+E        +  where 0 = calculate_headsup_score(PlayerBoard(Cards=13, Complete=True, Foul=True), PlayerBoard(Cards=13, Complete=True, Foul=True))
+
+tests/test_scoring.py:271: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_board.py::test_board_set_full_board_valid - assert not True
+FAILED tests/test_board.py::test_board_get_rank_and_royalty - assert not True
+FAILED tests/test_board.py::test_board_fantasyland_methods - assert not True
+FAILED tests/test_board.py::test_get_board_state_tuple - AssertionError: asse...
+FAILED tests/test_game_state.py::test_gamestate_apply_action_completes_board
+FAILED tests/test_game_state.py::test_gamestate_advance_state_fantasyland - a...
+FAILED tests/test_game_state.py::test_gamestate_advance_state_fl_non_fl_player_moves
+FAILED tests/test_game_state.py::test_gamestate_end_of_round_and_score - asse...
+FAILED tests/test_game_state.py::test_gamestate_fantasyland_entry_and_stay - ...
+FAILED tests/test_lookup_generator.py::test_lookup_table_generation - Asserti...
+FAILED tests/test_mcts_node.py::test_uct_select_child_visited - assert [T Act...
+FAILED tests/test_scoring.py::test_get_row_royalty_top[cards_str6-1] - Assert...
+FAILED tests/test_scoring.py::test_get_row_royalty_top[cards_str7-0] - Assert...
+FAILED tests/test_scoring.py::test_check_board_foul_valid - assert not True
+FAILED tests/test_scoring.py::test_check_board_foul_invalid - assert False
+FAILED tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str3-15]
+FAILED tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str4-14]
+FAILED tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str5-0]
+FAILED tests/test_scoring.py::test_get_fantasyland_entry_cards[top_hand_str6-0]
+FAILED tests/test_scoring.py::test_check_fantasyland_stay[top_str0-middle_str0-bottom_str0-True]
+FAILED tests/test_scoring.py::test_check_fantasyland_stay[top_str1-middle_str1-bottom_str1-True]
+FAILED tests/test_scoring.py::test_check_fantasyland_stay[top_str2-middle_str2-bottom_str2-True]
+FAILED tests/test_scoring.py::test_calculate_headsup_score[board11-board21--35]
+FAILED tests/test_scoring.py::test_calculate_headsup_score[board12-board22-14]
+FAILED tests/test_scoring.py::test_calculate_headsup_score[board13-board23--6]
+======================== 25 failed, 140 passed in 0.67s ========================
